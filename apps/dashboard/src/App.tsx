@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
 import type { UamVehicleStatus } from '@uam/types';
-import { Button } from "@/components/ui/button";
 import {
   AlertCircle,
   BatteryFull,
@@ -16,6 +15,7 @@ import {
 } from "lucide-react";
 import { Map3D } from './Map3D';
 import { LandingPriorityMap } from './LandingPriorityMap';
+import { Badge } from '@/components/Badge';
 
 const socket = io('http://localhost:3002');
 
@@ -173,44 +173,39 @@ function App() {
 
   return (
     <div className="bg-slate-50 min-h-screen text-slate-800 flex flex-col font-sans overflow-hidden">
-      {/* ── 헤더 (Dark Navigation Container Spec) ── */}
-      <div className="bg-slate-800 text-white px-8 pt-5 pb-0 border-b border-slate-700 shadow-xs flex-shrink-0">
+      {/* ── 헤더 (Light Navigation Container) ── */}
+      <div className="bg-white text-gray-900 px-8 pt-5 pb-0 border-b border-gray-200 shadow-xs flex-shrink-0">
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold tracking-tight text-white">UAM Real-Time Control Dashboard</h1>
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-teal-500/20 border border-teal-400/40 text-teal-300">
-              <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse" />
-              실시간 스트리밍
-            </span>
+          <div className="flex items-center gap-4">
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900">UAM Real-Time Control Dashboard</h1>
+            {hasLanded && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-teal-50 border border-teal-200 text-teal-700 shadow-2xs">
+                <PlaneLanding size={14} className="text-teal-600" />
+                착륙 완료 {landedUams.length}대
+              </span>
+            )}
           </div>
-
-          {hasLanded && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-teal-50 border border-teal-200 text-teal-700 shadow-2xs">
-              <PlaneLanding size={14} className="text-teal-600" />
-              착륙 완료 <span className="font-mono font-bold">{landedUams.length}</span>대
-            </span>
-          )}
         </div>
 
         {/* ── 탭 버튼 ── */}
         <div className="flex gap-2">
           <button
             onClick={() => setActiveTab('list')}
-            className={`flex items-center gap-2 !rounded-none px-5 py-2.5 text-sm font-semibold transition-all duration-150 border-b-2 ${activeTab === 'list'
-              ? 'border-teal-400 text-teal-300'
-              : 'border-transparent text-slate-400 hover:text-slate-200 hover:border-slate-600'
+            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold transition-all duration-150 border-b-2 ${activeTab === 'list'
+              ? 'border-teal-600 text-teal-700 bg-teal-50/70 rounded-t-lg'
+              : 'border-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-100/70 rounded-t-lg'
               }`}
           >
             <List size={16} />
             착륙 우선순위 기체
             {displayedUams.length > 0 && (
-              <span className={`ml-1 px-2 py-0.5 rounded-full text-xs font-mono font-bold ${activeTab === 'list' ? 'bg-teal-500/20 text-teal-300' : 'bg-slate-700 text-slate-400'
+              <span className={`ml-1 px-2 py-0.5 rounded-full text-xs font-mono font-bold ${activeTab === 'list' ? 'bg-teal-100 text-teal-800' : 'bg-gray-100 text-gray-600'
                 }`}>
                 {displayedUams.length}
               </span>
             )}
             {hasLanded && (
-              <span className={`ml-1 px-2 py-0.5 rounded-full text-xs font-mono font-bold ${activeTab === 'list' ? 'bg-teal-500/20 text-teal-300' : 'bg-slate-700 text-slate-400'
+              <span className={`ml-1 px-2 py-0.5 rounded-full text-xs font-mono font-bold ${activeTab === 'list' ? 'bg-teal-100 text-teal-800' : 'bg-gray-100 text-gray-600'
                 }`}>
                 착륙 {landedUams.length}
               </span>
@@ -218,15 +213,15 @@ function App() {
           </button>
           <button
             onClick={() => setActiveTab('map')}
-            className={`flex items-center gap-2 !rounded-none px-5 py-2.5 text-sm font-semibold transition-all duration-150 border-b-2 ${activeTab === 'map'
-              ? 'border-teal-400 text-teal-300'
-              : 'border-transparent text-slate-400 hover:text-slate-200 hover:border-slate-600'
+            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold transition-all duration-150 border-b-2 ${activeTab === 'map'
+              ? 'border-teal-600 text-teal-700 bg-teal-50/70 rounded-t-lg'
+              : 'border-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-100/70 rounded-t-lg'
               }`}
           >
             <MapIcon size={16} />
             비행 중 기체
             {mapUams.length > 0 && (
-              <span className={`ml-1 px-2 py-0.5 rounded-full text-xs font-mono font-bold ${activeTab === 'map' ? 'bg-teal-500/20 text-teal-300' : 'bg-slate-700 text-slate-400'
+              <span className={`ml-1 px-2 py-0.5 rounded-full text-xs font-mono font-bold ${activeTab === 'map' ? 'bg-teal-100 text-teal-800' : 'bg-gray-100 text-gray-600'
                 }`}>
                 {mapUams.length}
               </span>
@@ -250,9 +245,8 @@ function App() {
                 <div className="flex items-center gap-2">
                   <h2 className="text-base font-bold text-gray-800 flex items-center gap-2">
                     <Navigation size={18} className="text-teal-600" />
-                    UAM 밀도 모니터링 구역
+                    착륙 우선순위 ({displayedUams.length}대)
                   </h2>
-                  <span className="text-xs text-gray-400 font-mono">({displayedUams.length}개 구역/기체)</span>
                 </div>
 
                 <div className="flex items-center gap-3">
@@ -283,75 +277,68 @@ function App() {
               {displayedUams.slice(0, 3).length > 0 && (
                 <div className="mb-6">
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="text-[11px] font-bold tracking-wider text-teal-700 uppercase font-mono">Priority Zone (TOP 3)</span>
+                    <span className="text-[11px] font-bold tracking-wider text-teal-700 uppercase font-mono">Priority Zone</span>
                     <div className="flex-1 h-px bg-teal-100" />
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 items-stretch">
                     {displayedUams.slice(0, 3).map((uam, index) => {
                       const isLowBattery = uam.batteryPercent < EMERGENCY_BATTERY_THRESHOLD;
                       const uamEmergency = isEmergency(uam);
                       return (
                         <div
                           key={uam.uamId}
-                          className={`rounded-lg p-3.5 shadow-2xs transition-all duration-200 relative group border ${uamEmergency
-                            ? 'bg-rose-50/80 border-rose-200 hover:border-rose-400'
+                          className={`flex flex-col justify-between h-full rounded-lg p-3.5 shadow-2xs transition-all duration-200 relative group border ${uamEmergency
+                            ? 'bg-rose-50/80 border-rose-200 hover:border-rose-300'
                             : uam.waitingForLanding
-                              ? 'bg-amber-50/70 border-amber-200 hover:border-amber-400'
+                              ? 'bg-amber-50/60 border-amber-200 hover:border-amber-300'
                               : 'bg-gray-50 border-gray-100 hover:border-teal-300'
                             }`}
                         >
-                          {/* Nested Card Header */}
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-[11px] font-mono font-bold text-gray-500">#{index + 1}</span>
-                              <span className="text-xs font-mono font-bold text-gray-800 bg-gray-200/80 px-2 py-0.5 rounded">
-                                {uam.uamId}
-                              </span>
+                          <div>
+                            {/* Nested Card Header */}
+                            <div className="flex items-center justify-between gap-1 mb-2 min-w-0">
+                              <div className="flex items-center gap-1 min-w-0">
+                                <span className="text-[11px] font-mono font-bold text-gray-500 shrink-0">#{index + 1}</span>
+                                <Badge variant="neutral" size="sm" className="truncate font-mono font-bold">
+                                  {uam.uamId}
+                                </Badge>
+                                {uamEmergency && <AlertCircle className="text-rose-500 animate-pulse w-4 h-4 shrink-0" />}
+                              </div>
+
+                              {uamEmergency ? (
+                                <Badge variant="emergency">Emergency</Badge>
+                              ) : uam.waitingForLanding ? (
+                                <Badge variant="waiting">착륙 대기</Badge>
+                              ) : (
+                                <Badge variant="flight">비행 중</Badge>
+                              )}
                             </div>
 
-                            {uamEmergency ? (
-                              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
-                                <AlertCircle className="w-3 h-3 text-rose-500 animate-pulse" />
-                                비상
-                              </span>
-                            ) : uam.waitingForLanding ? (
-                              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">
-                                <CheckCircle2 className="w-3 h-3 text-indigo-500" />
-                                착륙 대기
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-teal-700 bg-teal-50 px-2 py-0.5 rounded border border-teal-200">
-                                <CheckCircle2 className="w-3 h-3 text-teal-500" />
-                                정상 비행
-                              </span>
-                            )}
+                            {/* Nested Card Content */}
+                            <div className="flex flex-col gap-1 my-2">
+                              <p className="flex items-center gap-2 text-sm text-gray-700">
+                                <BatteryFull className={isLowBattery ? 'text-rose-600 shrink-0' : 'text-teal-600 shrink-0'} size={15} />
+                                <span className={`font-mono ${isLowBattery ? 'text-rose-600 font-bold' : ''}`}>
+                                  배터리 {uam.batteryPercent.toFixed(1)}%
+                                </span>
+                              </p>
+                              <p className="text-[11px] text-gray-500 font-mono whitespace-nowrap truncate">
+                                {uam.latitude.toFixed(4)}, {uam.longitude.toFixed(4)} · {uam.altitude.toFixed(0)}m
+                              </p>
+                            </div>
                           </div>
 
-                          {/* Nested Card Content */}
-                          <div className="flex items-center justify-between text-xs my-2">
-                            <span className="flex items-center gap-1.5 text-gray-600 font-medium">
-                              <BatteryFull className={isLowBattery ? 'text-rose-600' : 'text-teal-600'} size={15} />
-                              배터리
-                            </span>
-                            <span className={`font-mono font-bold ${isLowBattery ? 'text-rose-600' : 'text-gray-800'}`}>
-                              {uam.batteryPercent.toFixed(1)}%
-                            </span>
-                          </div>
-
-                          <div className="flex items-center justify-between text-[11px] text-gray-500 mt-2.5 pt-2.5 border-t border-gray-200/70 font-mono">
-                            <span>{uam.latitude.toFixed(4)}, {uam.longitude.toFixed(4)}</span>
-                            <span className="font-semibold text-gray-700">{uam.altitude.toFixed(0)}m</span>
-                          </div>
-
-                          <Button
-                            className={`w-full h-8 text-xs font-semibold mt-3 ${uamEmergency
-                              ? 'bg-rose-600 hover:bg-rose-700 text-white shadow-xs'
-                              : 'bg-teal-600 hover:bg-teal-700 text-white shadow-xs'
+                          <button
+                            className={`w-full h-8 text-xs font-semibold mt-3 text-white border-0 shadow-2xs transition-colors rounded-lg flex items-center justify-center cursor-pointer shrink-0 ${uamEmergency
+                              ? 'bg-rose-600 hover:bg-rose-700'
+                              : uam.waitingForLanding
+                                ? 'bg-amber-600 hover:bg-amber-700'
+                                : 'bg-slate-700 hover:bg-slate-800'
                               }`}
                             onClick={() => handleApproveClick(uam)}
                           >
                             착륙 승인
-                          </Button>
+                          </button>
                         </div>
                       );
                     })}
@@ -366,7 +353,7 @@ function App() {
                     <span className="text-[11px] font-bold tracking-wider text-gray-500 uppercase font-mono">Standby Queue</span>
                     <div className="flex-1 h-px bg-gray-200" />
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 items-stretch">
                     {displayedUams.slice(3).map((uam, i) => {
                       const index = i + 3;
                       const isLowBattery = uam.batteryPercent < 20;
@@ -374,63 +361,56 @@ function App() {
                       return (
                         <div
                           key={uam.uamId}
-                          className={`rounded-lg p-3.5 shadow-2xs transition-all duration-200 relative group border ${uamEmergency
-                            ? 'bg-rose-50/80 border-rose-200 hover:border-rose-400'
+                          className={`flex flex-col justify-between h-full rounded-lg p-3.5 shadow-2xs transition-all duration-200 relative group border ${uamEmergency
+                            ? 'bg-rose-50/80 border-rose-200 hover:border-rose-300'
                             : uam.waitingForLanding
-                              ? 'bg-amber-50/70 border-amber-200 hover:border-amber-400'
+                              ? 'bg-amber-50/60 border-amber-200 hover:border-amber-300'
                               : 'bg-gray-50 border-gray-100 hover:border-teal-300'
                             }`}
                         >
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-[11px] font-mono font-bold text-gray-500">#{index + 1}</span>
-                              <span className="text-xs font-mono font-bold text-gray-800 bg-gray-200/80 px-2 py-0.5 rounded">
-                                {uam.uamId}
-                              </span>
+                          <div>
+                            <div className="flex items-center justify-between gap-1 mb-2 min-w-0">
+                              <div className="flex items-center gap-1 min-w-0">
+                                <span className="text-[11px] font-mono font-bold text-gray-500 shrink-0">#{index + 1}</span>
+                                <Badge variant="neutral" size="sm" className="truncate font-mono font-bold">
+                                  {uam.uamId}
+                                </Badge>
+                                {uamEmergency && <AlertCircle className="text-rose-500 animate-pulse w-4 h-4 shrink-0" />}
+                              </div>
+
+                              {uamEmergency ? (
+                                <Badge variant="emergency">Emergency</Badge>
+                              ) : uam.waitingForLanding ? (
+                                <Badge variant="waiting">착륙 대기</Badge>
+                              ) : (
+                                <Badge variant="flight">비행 중</Badge>
+                              )}
                             </div>
 
-                            {uamEmergency ? (
-                              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
-                                <AlertCircle className="w-3 h-3 text-rose-500 animate-pulse" />
-                                비상
-                              </span>
-                            ) : uam.waitingForLanding ? (
-                              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">
-                                <CheckCircle2 className="w-3 h-3 text-indigo-500" />
-                                착륙 대기
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-teal-700 bg-teal-50 px-2 py-0.5 rounded border border-teal-200">
-                                <CheckCircle2 className="w-3 h-3 text-teal-500" />
-                                비행 중
-                              </span>
-                            )}
+                            <div className="flex flex-col gap-1 my-2">
+                              <p className="flex items-center gap-2 text-sm text-gray-700">
+                                <BatteryFull className={isLowBattery ? 'text-rose-600 shrink-0' : 'text-teal-600 shrink-0'} size={15} />
+                                <span className={`font-mono ${isLowBattery ? 'text-rose-600 font-bold' : ''}`}>
+                                  배터리 {uam.batteryPercent.toFixed(1)}%
+                                </span>
+                              </p>
+                              <p className="text-[11px] text-gray-500 font-mono whitespace-nowrap truncate">
+                                {uam.latitude.toFixed(4)}, {uam.longitude.toFixed(4)} · {uam.altitude.toFixed(0)}m
+                              </p>
+                            </div>
                           </div>
 
-                          <div className="flex items-center justify-between text-xs my-2">
-                            <span className="flex items-center gap-1.5 text-gray-600 font-medium">
-                              <BatteryFull className={isLowBattery ? 'text-rose-600' : 'text-teal-600'} size={15} />
-                              배터리
-                            </span>
-                            <span className={`font-mono font-bold ${isLowBattery ? 'text-rose-600' : 'text-gray-800'}`}>
-                              {uam.batteryPercent.toFixed(1)}%
-                            </span>
-                          </div>
-
-                          <div className="flex items-center justify-between text-[11px] text-gray-500 mt-2.5 pt-2.5 border-t border-gray-200/70 font-mono">
-                            <span>{uam.latitude.toFixed(4)}, {uam.longitude.toFixed(4)}</span>
-                            <span className="font-semibold text-gray-700">{uam.altitude.toFixed(0)}m</span>
-                          </div>
-
-                          <Button
-                            className={`w-full h-8 text-xs font-semibold mt-3 ${uamEmergency
-                              ? 'bg-rose-600 hover:bg-rose-700 text-white shadow-xs'
-                              : 'bg-teal-600 hover:bg-teal-700 text-white shadow-xs'
+                          <button
+                            className={`w-full h-8 text-xs font-semibold mt-3 text-white border-0 shadow-2xs transition-colors rounded-lg flex items-center justify-center cursor-pointer shrink-0 ${uamEmergency
+                              ? 'bg-rose-600 hover:bg-rose-700'
+                              : uam.waitingForLanding
+                                ? 'bg-amber-600 hover:bg-amber-700'
+                                : 'bg-slate-700 hover:bg-slate-800'
                               }`}
                             onClick={() => handleApproveClick(uam)}
                           >
                             착륙 승인
-                          </Button>
+                          </button>
                         </div>
                       );
                     })}
@@ -453,7 +433,7 @@ function App() {
                   <CalendarClock size={16} className="text-teal-600" />
                   LANDING SEQUENCE
                   <span className="ml-auto text-xs font-normal text-gray-400 font-mono">
-                    {etaList.length}대 추적
+                    {etaList.length}대 추적 중
                   </span>
                 </h2>
                 <p className="text-[11px] text-gray-400 mt-1">
@@ -527,11 +507,11 @@ function App() {
                                   {entry.uam.uamId}
                                   {entry.isUamEmergency && <AlertCircle size={10} className="inline ml-1 text-rose-500 animate-pulse" />}
                                 </span>
-                                {entry.isWaiting ? (
-                                  <span className="text-[10px] px-1.5 py-0.5 rounded font-semibold bg-amber-50 text-amber-700 border border-amber-200 flex-shrink-0">착륙 대기</span>
-                                ) : (
-                                  <span className="text-[10px] px-1.5 py-0.5 rounded font-semibold bg-gray-200/70 text-gray-600 flex-shrink-0">비행 중</span>
-                                )}
+                              {entry.isWaiting ? (
+                                <Badge variant="waiting">착륙 대기</Badge>
+                              ) : (
+                                <Badge variant="flight">비행 중</Badge>
+                              )}
                               </div>
 
                               {/* ETA 바 + 도착 시각 */}
@@ -552,8 +532,8 @@ function App() {
                               </div>
 
                               {!entry.isWaiting && (
-                                <span className="text-[10px] text-gray-400 font-mono mt-1 block">
-                                  {entry.distKm.toFixed(1)} km 남음
+                                <span className="text-[10px] text-gray-500 font-mono mt-1 block">
+                                  {entry.distKm.toFixed(1)} km
                                 </span>
                               )}
                             </div>
@@ -618,95 +598,84 @@ function App() {
           onClick={handleCancel}
         >
           <div
-            className="bg-white border border-gray-200 rounded-2xl p-6 w-[420px] shadow-2xl text-gray-900"
+            className="bg-white border border-gray-200 rounded-2xl p-8 w-[420px] shadow-2xl text-gray-900"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-3 mb-6">
               {isEmergency(pendingApproval) ? (
                 <AlertCircle className="text-rose-600 w-7 h-7 animate-pulse" />
               ) : (
                 <Navigation className="text-teal-600 w-7 h-7" />
               )}
-              <h2 className={`text-lg font-bold ${isEmergency(pendingApproval) ? 'text-rose-600' : 'text-gray-900'}`}>
-                착륙 승인 최종 확인
+              <h2 className={`text-xl font-bold ${isEmergency(pendingApproval) ? 'text-rose-600' : 'text-teal-600'}`}>
+                착륙 승인 확인
               </h2>
             </div>
 
-            <p className="text-gray-500 text-xs mb-4">
-              아래 기체의 착륙 승인 요청을 전송합니다. 상태 정보를 확인해 주세요.
+            <p className="text-gray-500 text-sm mb-4">
+              아래 기체의 착륙을 승인합니다. 정보를 확인하세요.
             </p>
 
-            <div className={`rounded-xl p-4 mb-4 border ${isEmergency(pendingApproval) ? 'bg-rose-50 border-rose-200' : 'bg-gray-50 border-gray-200'}`}>
-              <div className="flex items-center justify-between mb-3">
-                <span className="font-mono text-xl font-bold text-gray-900">
-                  {pendingApproval.uamId}
-                </span>
-                {isEmergency(pendingApproval) ? (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-100 text-rose-700 border border-rose-300">
-                    비상 상황
+            <div className={`rounded-xl p-5 mb-2 border ${isEmergency(pendingApproval) ? 'bg-rose-50 border-rose-200' : 'bg-gray-50 border-gray-200'}`}>
+              <p className="font-mono text-2xl font-bold text-gray-900 mb-3">
+                {pendingApproval.uamId}
+              </p>
+
+              <div className="flex flex-col gap-2 text-sm">
+                <div className="flex items-center gap-2">
+                  <BatteryFull
+                    size={16}
+                    className={pendingApproval.batteryPercent < 20 ? 'text-rose-600' : 'text-teal-600'}
+                  />
+                  <span className={pendingApproval.batteryPercent < 20 ? 'text-rose-600 font-bold' : 'text-gray-700'}>
+                    배터리: {pendingApproval.batteryPercent.toFixed(1)}%
                   </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-teal-50 text-teal-700 border border-teal-200">
-                    승인 대기
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <MapPin size={16} className="text-gray-400" />
+                  <span className="text-gray-700 font-mono">
+                    좌표: {pendingApproval.latitude.toFixed(4)}, {pendingApproval.longitude.toFixed(4)}
                   </span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Navigation size={16} className="text-gray-400" />
+                  <span className="text-gray-700 font-mono">
+                    고도: {pendingApproval.altitude.toFixed(0)}m
+                  </span>
+                </div>
+
+                {isEmergency(pendingApproval) && (
+                  <div className="flex items-center gap-2 mt-1">
+                    <AlertCircle size={16} className="text-rose-600 animate-pulse" />
+                    <span className="text-rose-600 font-bold">비상 상황 기체</span>
+                  </div>
                 )}
-              </div>
-
-              <div className="flex flex-col gap-2 text-xs font-mono">
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-500 flex items-center gap-1.5">
-                    <BatteryFull size={14} className={pendingApproval.batteryPercent < 20 ? 'text-rose-600' : 'text-teal-600'} />
-                    잔여 배터리
-                  </span>
-                  <span className={`font-bold ${pendingApproval.batteryPercent < 20 ? 'text-rose-600' : 'text-gray-800'}`}>
-                    {pendingApproval.batteryPercent.toFixed(1)}%
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-500 flex items-center gap-1.5">
-                    <MapPin size={14} className="text-gray-400" />
-                    현재 위치 좌표
-                  </span>
-                  <span className="text-gray-700 font-medium">
-                    {pendingApproval.latitude.toFixed(4)}, {pendingApproval.longitude.toFixed(4)}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-500 flex items-center gap-1.5">
-                    <Navigation size={14} className="text-gray-400" />
-                    현재 비행 고도
-                  </span>
-                  <span className="text-gray-700 font-medium">
-                    {pendingApproval.altitude.toFixed(0)}m
-                  </span>
-                </div>
               </div>
             </div>
 
-            <p className="text-[11px] text-gray-400 mb-6 text-center">
-              * 승인 버튼 클릭 시 관제 서버로 즉시 승인 신호가 발송됩니다.
+            <p className="text-xs text-gray-400 mb-6 text-center">
+              * 이 정보는 승인 버튼을 클릭한 시점의 스냅샷입니다.
             </p>
 
-            <div className="flex gap-3">
-              <Button
+            <div className="flex gap-3 mt-6">
+              <button
                 id="modal-cancel-btn"
-                className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200 font-medium text-xs h-9"
-                variant="ghost"
+                className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200 font-medium text-sm h-10 rounded-lg flex items-center justify-center cursor-pointer transition-colors"
                 onClick={handleCancel}
               >
-                <XCircle size={15} className="mr-1.5" />
+                <XCircle size={16} className="mr-2" />
                 취소
-              </Button>
-              <Button
+              </button>
+              <button
                 id="modal-confirm-btn"
-                className={`flex-1 font-bold text-xs h-9 text-white shadow-xs ${isEmergency(pendingApproval) ? 'bg-rose-600 hover:bg-rose-700' : 'bg-teal-600 hover:bg-teal-700'}`}
+                className={`flex-1 font-bold text-sm h-10 text-white shadow-2xs rounded-lg flex items-center justify-center cursor-pointer transition-colors ${isEmergency(pendingApproval) ? 'bg-rose-600 hover:bg-rose-700' : 'bg-teal-600 hover:bg-teal-700'}`}
                 onClick={handleConfirm}
               >
-                <CheckCircle2 size={15} className="mr-1.5" />
+                <CheckCircle2 size={16} className="mr-2" />
                 최종 승인
-              </Button>
+              </button>
             </div>
           </div>
         </div>

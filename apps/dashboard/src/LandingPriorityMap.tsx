@@ -97,11 +97,11 @@ export function LandingPriorityMap({ uams }: LandingPriorityMapProps) {
 
           const isEmergency = uam.batteryPercent < 20;
 
-          // 색상: 비상 → Rose(#e11d48), 착륙대기 → Indigo(#6366f1), 상위3 → Teal(#0d9488), 나머지 → Slate(#64748b)
+          // 색상: 비상 → Rose(#e11d48), 착륙대기 → Amber(#d97706), 상위3 → Teal(#0d9488), 나머지 → Slate(#64748b)
           const color = isEmergency
             ? '#e11d48'
             : uam.waitingForLanding
-              ? '#6366f1'
+              ? '#d97706'
               : isTop3
                 ? '#0d9488'
                 : '#64748b';
@@ -109,7 +109,7 @@ export function LandingPriorityMap({ uams }: LandingPriorityMapProps) {
           const glowColor = isEmergency
             ? 'rgba(225,29,72,0.7)'
             : uam.waitingForLanding
-              ? 'rgba(99,102,241,0.7)'
+              ? 'rgba(217,119,6,0.7)'
               : isTop3
                 ? 'rgba(13,148,136,0.5)'
                 : 'transparent';
@@ -179,7 +179,7 @@ export function LandingPriorityMap({ uams }: LandingPriorityMapProps) {
         <span className="text-gray-600">
           추적{' '}
           <span className="text-teal-700 font-bold">{uams.length}</span>대 ·{' '}
-          <span className="text-indigo-700 font-bold">
+          <span className="text-amber-700 font-bold">
             {uams.filter((u) => u.waitingForLanding).length}
           </span>
           대 착륙 대기
@@ -188,10 +188,10 @@ export function LandingPriorityMap({ uams }: LandingPriorityMapProps) {
 
       {/* 범례 */}
       <div className="absolute bottom-3 left-3 z-10 bg-white/90 border border-gray-200 shadow-md backdrop-blur-md px-3 py-2 rounded-lg text-[10px] font-mono pointer-events-none flex flex-col gap-1.5">
-        <LegendItem color="#e11d48" label="비상 상황 (Rose)" />
-        <LegendItem color="#6366f1" label="착륙 대기 (Indigo)" />
-        <LegendItem color="#0d9488" label="우선순위 TOP 3 (Teal)" />
-        <LegendItem color="#64748b" label="대기열 (Slate)" />
+        <LegendItem color="#e11d48" label="비상" />
+        <LegendItem color="#d97706" label="착륙 대기" />
+        <LegendItem color="#0d9488" label="우선순위 TOP 3" />
+        <LegendItem color="#64748b" label="대기열" />
       </div>
     </div>
   );

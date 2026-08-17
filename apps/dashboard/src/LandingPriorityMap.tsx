@@ -95,21 +95,23 @@ export function LandingPriorityMap({ uams }: LandingPriorityMapProps) {
           const isTop3 = rank <= 3;
           const size = isTop3 ? 16 : 11;
 
-          // 색상: 비상 → 빨강, 착륙대기 → 노랑, 상위3 → 하늘, 나머지 → 회색
-          const color = uam.isEmergency
-            ? '#ef4444'
-            : uam.waitingForLanding
-              ? '#facc15'
-              : isTop3
-                ? '#38bdf8'
-                : '#94a3b8';
+          const isEmergency = uam.batteryPercent < 20;
 
-          const glowColor = uam.isEmergency
-            ? 'rgba(239,68,68,0.7)'
+          // 색상: 비상 → Rose(#e11d48), 착륙대기 → Indigo(#6366f1), 상위3 → Teal(#0d9488), 나머지 → Slate(#64748b)
+          const color = isEmergency
+            ? '#e11d48'
             : uam.waitingForLanding
-              ? 'rgba(250,204,21,0.7)'
+              ? '#6366f1'
               : isTop3
-                ? 'rgba(56,189,248,0.5)'
+                ? '#0d9488'
+                : '#64748b';
+
+          const glowColor = isEmergency
+            ? 'rgba(225,29,72,0.7)'
+            : uam.waitingForLanding
+              ? 'rgba(99,102,241,0.7)'
+              : isTop3
+                ? 'rgba(13,148,136,0.5)'
                 : 'transparent';
 
           return (
@@ -172,12 +174,12 @@ export function LandingPriorityMap({ uams }: LandingPriorityMapProps) {
       </Map>
 
       {/* HUD 오버레이 */}
-      <div className="absolute top-3 left-3 z-10 bg-slate-900/85 border border-slate-700 px-3 py-2 rounded-lg text-[10px] font-mono pointer-events-none flex flex-col gap-0.5">
-        <span className="text-sky-400 font-bold">PRIORITY QUEUE MAP</span>
-        <span className="text-slate-400">
+      <div className="absolute top-3 left-3 z-10 bg-white/90 border border-gray-200 shadow-md backdrop-blur-md px-3 py-2 rounded-lg text-[10px] font-mono pointer-events-none flex flex-col gap-0.5">
+        <span className="text-teal-700 font-bold tracking-wider">PRIORITY QUEUE MAP</span>
+        <span className="text-gray-600">
           추적{' '}
-          <span className="text-sky-300 font-bold">{uams.length}</span>대 ·{' '}
-          <span className="text-amber-400 font-bold">
+          <span className="text-teal-700 font-bold">{uams.length}</span>대 ·{' '}
+          <span className="text-indigo-700 font-bold">
             {uams.filter((u) => u.waitingForLanding).length}
           </span>
           대 착륙 대기
@@ -185,11 +187,11 @@ export function LandingPriorityMap({ uams }: LandingPriorityMapProps) {
       </div>
 
       {/* 범례 */}
-      <div className="absolute bottom-3 left-3 z-10 bg-slate-900/85 border border-slate-700 px-3 py-2 rounded-lg text-[10px] font-mono pointer-events-none flex flex-col gap-1">
-        <LegendItem color="#ef4444" label="비상" />
-        <LegendItem color="#facc15" label="착륙 대기" />
-        <LegendItem color="#38bdf8" label="우선순위 TOP 3" />
-        <LegendItem color="#94a3b8" label="대기열" />
+      <div className="absolute bottom-3 left-3 z-10 bg-white/90 border border-gray-200 shadow-md backdrop-blur-md px-3 py-2 rounded-lg text-[10px] font-mono pointer-events-none flex flex-col gap-1.5">
+        <LegendItem color="#e11d48" label="비상 상황 (Rose)" />
+        <LegendItem color="#6366f1" label="착륙 대기 (Indigo)" />
+        <LegendItem color="#0d9488" label="우선순위 TOP 3 (Teal)" />
+        <LegendItem color="#64748b" label="대기열 (Slate)" />
       </div>
     </div>
   );
@@ -207,7 +209,7 @@ function LegendItem({ color, label }: { color: string; label: string }) {
           flexShrink: 0,
         }}
       />
-      <span style={{ color: '#cbd5e1' }}>{label}</span>
+      <span style={{ color: '#334155', fontWeight: 600 }}>{label}</span>
     </div>
   );
 }

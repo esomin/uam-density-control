@@ -3,11 +3,25 @@
 
 **Urban Air Mobility(UAM)** 환경에서 다수의 기체와 버티포트(Vertiport) 간의 효율적인 통신 및 우선순위 기반의 착륙 스케줄링을 시뮬레이션하는 프로젝트입니다.
 
-## Overview
+---
+
+## 1. Overview (개요)
 
 이 프로젝트는 초당 수천 개의 메시지가 발생하는 고밀도 UAM 환경을 가정합니다. 기체의 배터리 상태, 비상 여부 등을 실시간으로 계산하여 최적의 착륙 순서를 결정하고, 이를 관제 대시보드와 연동하여 실제 기체에 명령을 하달하는 **Full-stack Control System**을 지향합니다.
 
-## Architecture
+---
+
+## 2. Key Features (핵심 기능)
+
+* **Priority-Based Scheduling:** 단순 선입선출(FIFO)이 아닌, 에너지 잔량 및 응급도를 고려한 지능형 스케줄링.
+* **Data Throttling:** Redis ZSET을 이용해 초당 수천 개의 데이터를 브라우저가 처리 가능한 수준으로 최적화하여 렌더링 성능 확보.
+* **Secure Handshake:** mTLS 및 gRPC를 활용한 기체-관제 서버 간 보안 통신 프로토콜 설계.
+* **Real-time Feedback:** 관제 명령이 기체 시뮬레이터의 동작에 즉각 반영되는 인터랙티브 루프.
+
+---
+
+## 3. Architecture (시스템 구조)
+
 ![img.png](img.png)
 **5-Layer Architecture**
 
@@ -24,7 +38,9 @@
 
 5. **L5 (Persistence):** 통계 분석을 위해 모든 로그 데이터를 **Time-series DB**에 비동기적으로 저장합니다.
 
-## Tech Stack
+---
+
+## 4. Tech Stack (기술 스택)
 
 * **Language:** TypeScript (NestJS)
 * **Message Broker:** Mosquitto (MQTT)
@@ -33,14 +49,9 @@
 * **Frontend:** React, shadcn/ui (Dashboard)
 * **Database:** TimescaleDB (Time-series)
 
-## Key Features
+---
 
-* **Priority-Based Scheduling:** 단순 선입선출(FIFO)이 아닌, 에너지 잔량 및 응급도를 고려한 지능형 스케줄링.
-* **Data Throttling:** Redis ZSET을 이용해 초당 수천 개의 데이터를 브라우저가 처리 가능한 수준으로 최적화하여 렌더링 성능 확보.
-* **Secure Handshake:** mTLS 및 gRPC를 활용한 기체-관제 서버 간 보안 통신 프로토콜 설계.
-* **Real-time Feedback:** 관제 명령이 기체 시뮬레이터의 동작에 즉각 반영되는 인터랙티브 루프.
-
-## App Details
+## 5. Project Structure (프로젝트 구조)
 
 ```
 uam-density-control/
@@ -58,10 +69,75 @@ uam-density-control/
 ├── turbo.json          # Turborepo 빌드 파이프라인 설정
 ├── pnpm-workspace.yaml # pnpm 워크스페이스 정의
 └── docker-compose.yml  # 전체 인프라(Mosquitto, Redis, DB) 실행
-````
+```
 
 - [simulator/README.md](apps/simulator/README.md)
 - [gateway/README.md](apps/gateway/README.md)
 - [scheduler/README.md](apps/scheduler/README.md)
 - [dashboard/README.md](apps/dashboard/README.md)
+
+---
+
+## 6. Getting Started (실행 방법)
+
+### 6.1. Prerequisites (사전 요구사항)
+
+* **Node.js**: v18 이상
+* **pnpm**: v10 이상 (`npm install -g pnpm`)
+* **Docker & Docker Compose**: Mosquitto 및 Redis 컨테이너 구동용
+
+---
+
+### 6.2. Installation & Run (설치 및 실행)
+
+#### 1. 의존성 패키지 설치
+```bash
+pnpm install
+```
+
+#### 2. 인프라 컨테이너 실행 (Mosquitto MQTT & Redis)
+```bash
+docker-compose up -d
+```
+
+#### 3. 애플리케이션 실행 (아래 방식 중 **하나만 선택**하여 실행)
+
+* **방식 A) 전체 서비스 구동 (Turborepo)**
+  > `gateway`를 포함하여 모노레포 내 모든 애플리케이션(`apps/*`)을 구동합니다.
+  ```bash
+  pnpm dev
+  ```
+
+* **방식 B) 핵심 3개 서비스 색상별 로그 구동 (`start-apps.sh`)**
+  > `scheduler`, `simulator`, `dashboard` 핵심 3개 서비스만 구동하며, 터미널 로그에 색상 태그(`SCH`, `SIM`, `DSH`)가 부여되어 직관적으로 모니터링할 수 있습니다.
+  ```bash
+  ./start-apps.sh
+  ```
+
+#### 4. 개별 서비스 선택 실행
+
+```bash
+# 스케줄러 엔진 실행 (@uam/scheduler)
+pnpm dev --filter @uam/scheduler
+
+# 기체 시뮬레이터 실행 (@uam/simulator)
+pnpm dev --filter @uam/simulator
+
+# 관제 대시보드 실행 (@uam/dashboard)
+pnpm dev --filter @uam/dashboard
+
+# 게이트웨이 실행 (gateway)
+pnpm dev --filter gateway
+```
+
+---
+
+### 6.3. 서비스 포트 정보
+
+| 서비스 | 사용 기술 | 접속 포트 | 역할 |
+| --- | --- | --- | --- |
+| **MQTT Broker** | Mosquitto | `1883` (TCP), `9001` (WebSocket) | L2 기체 데이터 수집 메시지 브로커 |
+| **In-Memory DB** | Redis | `6379` | L3 우선순위 큐 (ZSET 완충 댐) |
+| **Dashboard** | React (Vite) | `5173`  [http://localhost:5173](http://localhost:5173) | L4 웹 관제 및 시각화 대시보드 |
+
 

@@ -54,30 +54,6 @@ flowchart LR
 
 ## 4. 스케줄러 & 대시보드 큐 연동
 
-```mermaid
-sequenceDiagram
-    participant SIM as Simulator
-    participant SCH as Scheduler (Redis)
-    participant DSH as Dashboard
-
-    Note over SIM,SCH: [Stream A] 지도용 전체 기체 (최신 50대 버퍼)
-    Note over SIM,SCH: [Stream B] 잠실 목적지 기체만 우선순위 점수 계산
-
-    SIM->>SCH: uam/status/jamsil (1초 주기)
-    SCH->>SCH: 우선순위 점수 산출 (긴급 500점 + 배터리 350점 + 거리 150점)
-    SCH->>SCH: Redis ZSET 상위 10대 조회 (Top-10)
-    SCH->>DSH: uam:update (평균 5~8대 카드 표시)
-
-    alt 수동 승인 또는 비상 자동 착륙
-        DSH->>SCH: landing:approve
-        SCH->>SIM: uam/command/land
-        SIM->>SIM: 고도 0m 도달
-        SIM->>SCH: uam/landed
-        SCH->>SCH: Redis 큐에서 제거 & landedUams 기록
-        SCH->>DSH: landed:update
-    end
-```
-
 ![UAM Lifecycle Architecture](./uam-lifecycle-architecture.png)
 
 * **우선순위 점수 (1,000점 만점)**:

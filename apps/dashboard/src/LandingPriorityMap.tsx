@@ -107,7 +107,7 @@ export function LandingPriorityMap({ uams }: LandingPriorityMapProps) {
                 : '#64748b';
 
           const glowColor = isEmergency
-            ? 'rgba(225,29,72,0.7)'
+            ? 'rgba(5, 2, 2, 0.7)'
             : uam.waitingForLanding
               ? 'rgba(217,119,6,0.7)'
               : isTop3

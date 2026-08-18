@@ -173,4 +173,19 @@ export class AppService implements OnModuleInit {
       setTimeout(() => this.startSimulation(), 2000);
     }
   }
+
+  resetSimulation() {
+    console.log('[Simulator] Resetting simulation environment...');
+    for (const [uamId, state] of this.vehicleStates.entries()) {
+      if (state.intervalId) {
+        clearInterval(state.intervalId);
+      }
+    }
+    this.vehicleStates.clear();
+
+    for (let i = 0; i < this.INITIAL_FLEET_SIZE; i++) {
+      this.startSimulation();
+    }
+    console.log(`[Simulator] Simulation reset complete. Spawned ${this.INITIAL_FLEET_SIZE} fresh UAMs.`);
+  }
 }

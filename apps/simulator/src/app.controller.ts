@@ -16,4 +16,10 @@ export class AppController {
     console.log(`[Simulator/Controller] Received landing command for:`, data.uamId);
     this.appService.approveLanding(data.uamId);
   }
+
+  @MessagePattern('uam/command/reset')
+  handleResetCommand() {
+    console.log('[Simulator/Controller] Received reset command');
+    this.appService.resetSimulation();
+  }
 }

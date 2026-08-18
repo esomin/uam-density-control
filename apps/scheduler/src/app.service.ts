@@ -35,4 +35,12 @@ export class AppService {
 
     console.log(`[Command] Sent landing command to ${uamId} via MQTT`);
   }
+
+  async sendResetCommand() {
+    this.mqttClient.emit('uam/command/reset', {
+      command: 'RESET',
+      timestamp: new Date().toISOString(),
+    });
+    console.log('[Command] Sent reset command to simulator via MQTT');
+  }
 }

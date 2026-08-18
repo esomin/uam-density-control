@@ -42,6 +42,12 @@ export class EventsGateway implements OnModuleInit, OnGatewayConnection {
     await this.redis.del('uam:landing:queue');
     console.log('[Gateway] Redis landing queue cleared on startup.');
 
+    // ── [3분 자동 주기 리셋] 데모 및 관제 환경 리프레시 (180초) ──────────────
+    const RESET_INTERVAL_MS = 180 * 1000;
+    setInterval(() => {
+      this.triggerAutoReset();
+    }, RESET_INTERVAL_MS);
+
     // ── [Stream A] 지도용: 500ms마다 rawBuffer에서 최신 50대 emit ──────────────
     setInterval(() => {
       // 5초 동안 업데이트가 없는 기체는 rawBuffer에서 제거
@@ -148,5 +154,32 @@ export class EventsGateway implements OnModuleInit, OnGatewayConnection {
 
     // 대시보드 수동 승인이므로 바로 착륙 리스트에 등록 (선제적 등록)
     return this.registerLanded(data.uamId);
+  }
+
+  /** 3분 주기 시뮬레이션 및 데이터 환경 초기화 */
+  async triggerAutoReset() {
+    console.log('[Gateway] Triggering 3-minute scheduled simulation reset...');
+
+    // 1. Redis 큐 및 상세 키 제거
+    await this.redis.del('uam:landing:queue');
+    const detailKeys = await this.redis.keys('uam:detail:*');
+    if (detailKeys.length > 0) {
+      await this.redis.del(...detailKeys);
+    }
+
+    // 2. 게이트웨이 메모리 상태 초기화
+    this.landedUams = [];
+    this.landedUamIds.clear();
+    this.rawBuffer.clear();
+
+    // 3. 시뮬레이터에 리셋 명령 전송
+    await this.appService.sendResetCommand();
+
+    // 4. 대시보드 상태 즉시 초기화 브로드캐스트
+    this.server.emit('landed:update', []);
+    this.server.emit('uam:update', []);
+    this.server.emit('map:update', []);
+
+    console.log('[Gateway] ✅ 3-minute scheduled reset completed.');
   }
 }

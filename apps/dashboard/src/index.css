@@ -241,3 +241,39 @@ body {
 .dark .first-emergency-card {
     background-color: var(--color-status-emergency-dark-bg) !important;
 }
+
+/* ── Slim Custom Scrollbar (Light & Dark Mode) ── */
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+.dark .custom-scrollbar {
+    scrollbar-color: #52525b transparent;
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #52525b;
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #71717a;
+}

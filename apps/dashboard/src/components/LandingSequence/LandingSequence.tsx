@@ -18,7 +18,7 @@ export function LandingSequence({ displayedUams, landedUams }: LandingSequencePr
   return (
     <div className="flex-[1] min-w-0 bg-white dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 rounded-xl p-5 shadow-xs flex flex-col overflow-hidden">
       {/* 타임라인 헤더 */}
-      <div className="pb-3 mb-3 border-b border-gray-100">
+      <div className="pb-3 mb-3 border-b border-gray-100 dark:border-zinc-600">
         <h2 className="text-sm font-bold text-gray-800 dark:text-zinc-100 flex items-center gap-2 font-mono uppercase tracking-wider">
           <CalendarClock size={16} className="text-main-primary-text" />
           LANDING SEQUENCE
@@ -32,7 +32,7 @@ export function LandingSequence({ displayedUams, landedUams }: LandingSequencePr
       </div>
 
       {/* 타임라인 본문 */}
-      <div className="flex-1 overflow-y-auto pr-1">
+      <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar">
         {etaList.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-gray-400 gap-2">
             <CalendarClock size={28} className="opacity-30" />
@@ -51,7 +51,7 @@ export function LandingSequence({ displayedUams, landedUams }: LandingSequencePr
                 {now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}
               </span>
             </div>
-            <div className="absolute left-[2.1rem] top-7 bottom-6 w-px bg-gray-200" />
+            <div className="absolute left-[2.1rem] top-7 bottom-6 w-px bg-gray-200 dark:bg-zinc-600" />
 
             {/* 기체 목록 */}
             <div className="flex flex-col gap-2.5">
@@ -70,7 +70,7 @@ export function LandingSequence({ displayedUams, landedUams }: LandingSequencePr
                       <span className="text-[10px] font-bold tracking-wider text-gray-500 uppercase font-mono">
                         Standby Queue
                       </span>
-                      <div className="flex-1 h-px bg-gray-200" />
+                      <div className="flex-1 h-px bg-gray-200 dark:bg-zinc-600" />
                     </div>
                   )}
                   <div className="flex items-start gap-2">

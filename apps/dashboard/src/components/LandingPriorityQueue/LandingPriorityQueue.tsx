@@ -23,9 +23,9 @@ export function LandingPriorityQueue({
   const standbyQueueUams = displayedUams.slice(3);
 
   return (
-    <div className="flex flex-col flex-[2.5] min-w-0 bg-white dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 rounded-xl p-5 shadow-xs overflow-y-auto">
+    <div className="flex flex-col flex-[2.5] min-w-0 bg-white dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 rounded-xl p-5 shadow-xs overflow-y-auto custom-scrollbar">
       {/* 헤더: 타이틀 및 실시간/잠금 토글 */}
-      <div className="flex items-center justify-between mb-5 pb-3 border-b border-gray-100">
+      <div className="flex items-center justify-between mb-5 pb-3 border-b border-gray-100 dark:border-zinc-600">
         <div className="flex items-center gap-2">
           <h2 className="text-base font-bold text-gray-800 dark:text-zinc-100 flex items-center gap-2 font-mono uppercase tracking-wider">
             <AlignJustify size={18} className="text-main-primary-text" />

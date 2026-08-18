@@ -14,7 +14,7 @@ export function LandedLog({ landedUams }: LandedLogProps) {
   };
 
   return (
-    <div className="border-t border-gray-100 pt-3 mt-3 max-h-[160px] overflow-y-auto">
+    <div className="border-t border-gray-100 dark:border-zinc-600 pt-3 mt-3 max-h-[160px] overflow-y-auto pr-1 custom-scrollbar">
       <h3 className="text-[11px] font-bold text-gray-600 dark:text-zinc-200 uppercase tracking-wider mb-2 flex items-center gap-1.5 font-mono">
         <PlaneLanding size={12} className="text-status-landed-text" />
         착륙 완료 로그

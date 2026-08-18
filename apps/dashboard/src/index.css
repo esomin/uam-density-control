@@ -58,6 +58,9 @@ body {
 }
 
 @theme inline {
+    --color-main-primary: var(--color-sky-600);
+    --color-main-primary-text: var(--color-sky-700);
+    --color-main-primary-bg: color-mix(in srgb, var(--color-sky-50) 70%, transparent);
     --radius-sm: calc(var(--radius) - 4px);
     --radius-md: calc(var(--radius) - 2px);
     --radius-lg: var(--radius);
@@ -140,4 +143,21 @@ body {
     body {
         @apply bg-background text-foreground;
     }
+}
+
+@keyframes emergency-pulse {
+    0%, 100% {
+        border-color: var(--color-rose-500);
+        box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.4);
+    }
+    50% {
+        border-color: var(--color-rose-600);
+        box-shadow: 0 0 0 6px rgba(244, 63, 94, 0);
+    }
+}
+
+.first-emergency-card {
+    background-color: rgb(254, 242, 242) !important;
+    border-color: var(--color-rose-500) !important;
+    animation: emergency-pulse 2s infinite ease-in-out;
 }

@@ -212,7 +212,7 @@ function App() {
               </span>
             )}
             {hasLanded && (
-              <span className={`ml-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${activeTab === 'list' ? 'bg-teal-50 text-teal-700' : 'bg-gray-100 text-gray-600'
+              <span className={`ml-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${activeTab === 'list' ? 'bg-status-landed-bg text-status-landed-text' : 'bg-gray-100 text-gray-600'
                 }`}>
                 착륙 {landedUams.length}
               </span>
@@ -298,9 +298,9 @@ function App() {
                           className={`flex flex-col justify-between h-full rounded-lg p-3 transition-all duration-200 relative group border ${isFirstEmergency
                             ? 'first-emergency-card shadow-md'
                             : uamEmergency
-                              ? 'border-rose-500 bg-rose-50/70 shadow-2xs'
+                              ? 'border-status-emergency bg-status-emergency-bg shadow-2xs'
                               : uam.waitingForLanding
-                                ? 'border-amber-500 bg-amber-50/60 shadow-2xs'
+                                ? 'border-status-waiting bg-status-waiting-bg shadow-2xs'
                                 : 'border-main-primary bg-main-primary-bg/30 shadow-2xs'
                             }`}
                         >
@@ -309,13 +309,13 @@ function App() {
                             <div className="flex flex-wrap items-center justify-between gap-1 mb-2 min-w-0">
                               <div className="flex items-center gap-1.5 min-w-0 flex-1">
                                 <span className="text-[10px] font-mono font-bold text-gray-400 shrink-0">#{index + 1}</span>
-                                <span className={`font-mono text-xs font-bold truncate ${uamEmergency ? 'text-rose-700'
-                                  : uam.waitingForLanding ? 'text-amber-700'
+                                <span className={`font-mono text-xs font-bold truncate ${uamEmergency ? 'text-status-emergency-text'
+                                  : uam.waitingForLanding ? 'text-status-waiting-text'
                                     : 'text-main-primary-text'
                                   }`}>
                                   {uam.uamId}
                                 </span>
-                                {uamEmergency && <AlertCircle className="text-rose-500 animate-pulse w-3.5 h-3.5 shrink-0" />}
+                                {uamEmergency && <AlertCircle className="text-status-emergency animate-pulse w-3.5 h-3.5 shrink-0" />}
                               </div>
 
                               {uam.waitingForLanding ? (
@@ -348,9 +348,9 @@ function App() {
 
                           <button
                             className={`w-full h-8 text-xs font-semibold mt-3 text-white border-0 shadow-2xs transition-colors rounded-lg flex items-center justify-center cursor-pointer shrink-0 ${uamEmergency
-                              ? 'bg-rose-600 hover:bg-rose-700'
+                              ? 'bg-status-emergency-action hover:bg-status-emergency-action-hover'
                               : uam.waitingForLanding
-                                ? 'bg-amber-600 hover:bg-amber-700'
+                                ? 'bg-status-waiting-action hover:bg-status-waiting-action-hover'
                                 : 'bg-slate-700 hover:bg-slate-800'
                               }`}
                             onClick={() => handleApproveClick(uam)}
@@ -382,9 +382,9 @@ function App() {
                           className={`flex flex-col justify-between h-full rounded-lg p-3 transition-all duration-200 relative group border ${isFirstEmergency
                             ? 'first-emergency-card shadow-md'
                             : uamEmergency
-                              ? 'border-rose-500 bg-rose-50/70 shadow-2xs'
+                              ? 'border-status-emergency bg-status-emergency-bg shadow-2xs'
                               : uam.waitingForLanding
-                                ? 'border-amber-500 bg-amber-50/60 shadow-2xs'
+                                ? 'border-status-waiting bg-status-waiting-bg shadow-2xs'
                                 : 'border-main-primary bg-main-primary-bg/30 shadow-2xs'
                             }`}
                         >
@@ -392,13 +392,13 @@ function App() {
                             <div className="flex flex-wrap items-center justify-between gap-1 mb-2 min-w-0">
                               <div className="flex items-center gap-1.5 min-w-0 flex-1">
                                 <span className="text-[10px] font-mono font-bold text-gray-400 shrink-0">#{index + 1}</span>
-                                <span className={`font-mono text-xs font-bold truncate ${uamEmergency ? 'text-rose-700'
-                                  : uam.waitingForLanding ? 'text-amber-700'
+                                <span className={`font-mono text-xs font-bold truncate ${uamEmergency ? 'text-status-emergency-text'
+                                  : uam.waitingForLanding ? 'text-status-waiting-text'
                                     : 'text-main-primary-text'
                                   }`}>
                                   {uam.uamId}
                                 </span>
-                                {uamEmergency && <AlertCircle className="text-rose-500 animate-pulse w-3.5 h-3.5 shrink-0" />}
+                                {uamEmergency && <AlertCircle className="text-status-emergency animate-pulse w-3.5 h-3.5 shrink-0" />}
                               </div>
 
                               {uam.waitingForLanding ? (
@@ -430,9 +430,9 @@ function App() {
 
                           <button
                             className={`w-full h-8 text-xs font-semibold mt-3 text-white border-0 shadow-2xs transition-colors rounded-lg flex items-center justify-center cursor-pointer shrink-0 ${uamEmergency
-                              ? 'bg-rose-600 hover:bg-rose-700'
+                              ? 'bg-status-emergency-action hover:bg-status-emergency-action-hover'
                               : uam.waitingForLanding
-                                ? 'bg-amber-600 hover:bg-amber-700'
+                                ? 'bg-status-waiting-action hover:bg-status-waiting-action-hover'
                                 : 'bg-slate-700 hover:bg-slate-800'
                               }`}
                             onClick={() => handleApproveClick(uam)}
@@ -515,29 +515,29 @@ function App() {
                               {/* 노드 점 */}
                               <div className="flex-shrink-0 pt-1.5 z-10">
                                 <div className={`w-2.5 h-2.5 rounded-full border-2 transition-all duration-300 ${entry.isUamEmergency
-                                  ? 'bg-rose-500 border-rose-300'
+                                  ? 'bg-status-emergency border-status-emergency-border'
                                   : entry.isWaiting
-                                    ? 'bg-amber-500 border-amber-300'
+                                    ? 'bg-status-waiting border-status-waiting-border'
                                     : 'bg-main-primary border-main-primary'
                                   }`} />
                               </div>
 
                             {/* 컨텐츠 카드 (Nested Card style) */}
                             <div className={`flex-1 rounded-lg border transition-all duration-200 p-2.5 shadow-2xs ${entry.isUamEmergency
-                              ? 'border-rose-500 bg-rose-50/70'
+                              ? 'border-status-emergency bg-status-emergency-bg'
                               : entry.isWaiting
-                                ? 'border-amber-500 bg-amber-50/60'
+                                ? 'border-status-waiting bg-status-waiting-bg'
                                 : 'border-main-primary bg-main-primary-bg/30'
                               }`}>
                               {/* 최상단: 순위 + ID + 상태 */}
                               <div className="flex items-center gap-1.5 mb-1.5">
                                 <span className="text-[10px] font-bold text-gray-400 font-mono">#{entry.rank}</span>
-                                <span className={`font-mono text-xs font-bold flex-1 truncate ${entry.isUamEmergency ? 'text-rose-700'
-                                  : entry.isWaiting ? 'text-amber-700'
+                                <span className={`font-mono text-xs font-bold flex-1 truncate ${entry.isUamEmergency ? 'text-status-emergency-text'
+                                  : entry.isWaiting ? 'text-status-waiting-text'
                                     : 'text-main-primary-text'
                                   }`}>
                                   {entry.uam.uamId}
-                                  {entry.isUamEmergency && <AlertCircle size={10} className="inline ml-1 text-rose-500 animate-pulse" />}
+                                  {entry.isUamEmergency && <AlertCircle size={10} className="inline ml-1 text-status-emergency animate-pulse" />}
                                 </span>
                                 {entry.isWaiting ? (
                                   <Badge variant="waiting">착륙 대기</Badge>
@@ -559,9 +559,9 @@ function App() {
                                   {/* 채워진 트랙 선 (Filled Track Line) */}
                                   <div
                                     className={`absolute left-0 h-1 rounded-full transition-all duration-700 ${entry.isUamEmergency
-                                      ? 'bg-rose-500'
+                                      ? 'bg-status-emergency'
                                       : entry.isWaiting
-                                        ? 'bg-amber-500'
+                                        ? 'bg-status-waiting'
                                         : 'bg-main-primary'
                                       }`}
                                     style={{ width: `${entry.isWaiting ? 90 : Math.min(85, Math.max(5, Math.round((1 - entry.distKm / maxDistKm) * 85)))}%` }}
@@ -573,9 +573,9 @@ function App() {
                                   {/* 비행기 아이콘 (Airplane Icon) */}
                                   <div
                                     className={`absolute -translate-x-1/2 transition-all duration-700 flex items-center justify-center ${entry.isUamEmergency
-                                      ? 'text-rose-500'
+                                      ? 'text-status-emergency'
                                       : entry.isWaiting
-                                        ? 'text-amber-500'
+                                        ? 'text-status-waiting'
                                         : 'text-main-primary'
                                       }`}
                                     style={{ left: `${entry.isWaiting ? 90 : Math.min(85, Math.max(5, Math.round((1 - entry.distKm / maxDistKm) * 85)))}%` }}
@@ -611,23 +611,23 @@ function App() {
               {hasLanded && (
                 <div className="border-t border-gray-100 pt-3 mt-3 max-h-[160px] overflow-y-auto">
                   <h3 className="text-[11px] font-bold text-gray-600 uppercase tracking-wider mb-2 flex items-center gap-1.5 font-mono">
-                    <PlaneLanding size={12} className="text-teal-600" />
+                    <PlaneLanding size={12} className="text-status-landed-text" />
                     착륙 완료 로그
-                    <span className="ml-auto text-teal-600 font-bold">{landedUams.length}대</span>
+                    <span className="ml-auto text-status-landed-text font-bold">{landedUams.length}대</span>
                   </h3>
                   <div className="flex flex-col gap-1.5">
                     {landedUams.map((record, idx) => (
                       <div
                         key={`${record.uamId}-${record.landedAt}`}
                         className={`flex items-center gap-2 px-2.5 py-1.5 rounded-md border text-[11px] transition-all duration-300 ${idx === 0
-                          ? 'border-teal-500/30 bg-teal-50/50 text-teal-700 shadow-2xs font-semibold'
+                          ? 'border-status-landed-border bg-status-landed-bg text-status-landed-text shadow-2xs font-semibold'
                           : 'border-gray-100 bg-gray-50 text-gray-600'
                           }`}
                       >
-                        <CheckCircle2 size={12} className={idx === 0 ? 'text-teal-500' : 'text-gray-400'} />
+                        <CheckCircle2 size={12} className={idx === 0 ? 'text-status-landed' : 'text-gray-400'} />
                         <span className="font-mono font-bold flex-1 truncate">{record.uamId}</span>
                         <span className="font-mono text-gray-500">{formatLandedAt(record.landedAt)}</span>
-                        {idx === 0 && <span className="text-teal-500">●</span>}
+                        {idx === 0 && <span className="text-status-landed">●</span>}
                       </div>
                     ))}
                   </div>
@@ -657,11 +657,11 @@ function App() {
           >
             <div className="flex items-center gap-2.5 mb-4">
               {isEmergency(pendingApproval) ? (
-                <AlertCircle className="text-rose-600 w-5 h-5 animate-pulse" />
+                <AlertCircle className="text-status-emergency-action w-5 h-5 animate-pulse" />
               ) : (
                 <Navigation className="text-main-primary-text w-5 h-5" />
               )}
-              <h2 className={`text-base font-bold ${isEmergency(pendingApproval) ? 'text-rose-600' : 'text-main-primary-text'}`}>
+              <h2 className={`text-base font-bold ${isEmergency(pendingApproval) ? 'text-status-emergency-action' : 'text-main-primary-text'}`}>
                 착륙 승인 확인
               </h2>
             </div>
@@ -670,7 +670,7 @@ function App() {
               아래 기체의 착륙을 승인합니다. 정보를 확인하세요.
             </p>
 
-            <div className={`rounded-xl p-4 mb-2 border ${isEmergency(pendingApproval) ? 'bg-rose-50 border-rose-200' : 'bg-gray-50 border-gray-200'}`}>
+            <div className={`rounded-xl p-4 mb-2 border ${isEmergency(pendingApproval) ? 'bg-status-emergency-bg border-status-emergency-border' : 'bg-gray-50 border-gray-200'}`}>
               <p className="font-mono text-base font-bold text-gray-900 mb-2">
                 {pendingApproval.uamId}
               </p>
@@ -679,9 +679,9 @@ function App() {
                 <div className="flex items-center gap-2">
                   <BatteryFull
                     size={14}
-                    className={pendingApproval.batteryPercent < 20 ? 'text-rose-600' : 'text-main-primary'}
+                    className={pendingApproval.batteryPercent < 20 ? 'text-status-emergency-action' : 'text-main-primary'}
                   />
-                  <span className={pendingApproval.batteryPercent < 20 ? 'text-rose-600 font-bold' : 'text-gray-700'}>
+                  <span className={pendingApproval.batteryPercent < 20 ? 'text-status-emergency-action font-bold' : 'text-gray-700'}>
                     배터리: {pendingApproval.batteryPercent.toFixed(1)}%
                   </span>
                 </div>
@@ -702,8 +702,8 @@ function App() {
 
                 {isEmergency(pendingApproval) && (
                   <div className="flex items-center gap-2 mt-1">
-                    <AlertCircle size={14} className="text-rose-600 animate-pulse" />
-                    <span className="text-rose-600 font-bold">비상 상황 기체</span>
+                    <AlertCircle size={14} className="text-status-emergency-action animate-pulse" />
+                    <span className="text-status-emergency-action font-bold">비상 상황 기체</span>
                   </div>
                 )}
               </div>
@@ -724,7 +724,7 @@ function App() {
               </button>
               <button
                 id="modal-confirm-btn"
-                className={`flex-1 font-bold text-xs h-9 text-white shadow-2xs rounded-lg flex items-center justify-center cursor-pointer transition-colors ${isEmergency(pendingApproval) ? 'bg-rose-600 hover:bg-rose-700' : 'bg-main-primary hover:bg-main-primary-text'}`}
+                className={`flex-1 font-bold text-xs h-9 text-white shadow-2xs rounded-lg flex items-center justify-center cursor-pointer transition-colors ${isEmergency(pendingApproval) ? 'bg-status-emergency-action hover:bg-status-emergency-action-hover' : 'bg-main-primary hover:bg-main-primary-text'}`}
                 onClick={handleConfirm}
               >
                 <CheckCircle2 size={14} className="mr-1.5" />

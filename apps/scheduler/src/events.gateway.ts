@@ -156,9 +156,12 @@ export class EventsGateway implements OnModuleInit, OnGatewayConnection {
     return this.registerLanded(data.uamId);
   }
 
-  /** 3분 주기 시뮬레이션 및 데이터 환경 초기화 */
+  /** 주기적 시뮬레이션 및 데이터 환경 초기화 */
   async triggerAutoReset() {
-    console.log('[Gateway] Triggering 3-minute scheduled simulation reset...');
+    console.log('[Gateway] Triggering scheduled simulation reset...');
+
+    // 0. 대시보드에 리셋 시작 알림 (로딩 오버레이 표시, 지속시간 4000ms)
+    this.server.emit('simulation:resetting', { duration: 4000 });
 
     // 1. Redis 큐 및 상세 키 제거
     await this.redis.del('uam:landing:queue');
@@ -175,11 +178,11 @@ export class EventsGateway implements OnModuleInit, OnGatewayConnection {
     // 3. 시뮬레이터에 리셋 명령 전송
     await this.appService.sendResetCommand();
 
-    // 4. 대시보드 상태 즉시 초기화 브로드캐스트
+    // 4. 대시보드 상태 초기화 브로드캐스트
     this.server.emit('landed:update', []);
     this.server.emit('uam:update', []);
     this.server.emit('map:update', []);
 
-    console.log('[Gateway] ✅ 3-minute scheduled reset completed.');
+    console.log('[Gateway] ✅ Scheduled reset completed.');
   }
 }

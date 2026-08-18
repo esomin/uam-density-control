@@ -7,6 +7,7 @@ import { LandingPriorityMap } from './LandingPriorityMap';
 import { LandingSequence } from './components/LandingSequence/LandingSequence';
 import { Map3D } from './Map3D';
 import { ApprovalModal } from './components/ApprovalModal';
+import { ResetOverlay } from './components/ResetOverlay';
 
 function App() {
   const {
@@ -14,6 +15,8 @@ function App() {
     mapUams,
     landedUams,
     isQueueLocked,
+    isResetting,
+    resetDuration,
     pendingChangeCount,
     handleToggleLock,
     approveLanding,
@@ -87,6 +90,12 @@ function App() {
         pendingApproval={pendingApproval}
         onConfirm={handleConfirmApproval}
         onCancel={handleCancelApproval}
+      />
+
+      {/* ── 시뮬레이션 환경 초기화 HUD 오버레이 ── */}
+      <ResetOverlay
+        isVisible={isResetting}
+        duration={resetDuration}
       />
     </div>
   );

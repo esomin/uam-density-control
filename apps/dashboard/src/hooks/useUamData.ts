@@ -20,6 +20,10 @@ export function useUamData() {
   const [landedUams, setLandedUams] = useState<LandedRecord[]>([]);
   const [isQueueLocked, setIsQueueLocked] = useState(false);
 
+  /** 시뮬레이션 환경 초기화 오버레이 상태 */
+  const [isResetting, setIsResetting] = useState(false);
+  const [resetDuration, setResetDuration] = useState(4000);
+
   const isQueueLockedRef = useRef(isQueueLocked);
   useEffect(() => {
     isQueueLockedRef.current = isQueueLocked;
@@ -43,10 +47,21 @@ export function useUamData() {
       setLandedUams(data);
     });
 
+    // 시뮬레이션 환경 초기화 이벤트
+    socket.on('simulation:resetting', (data?: { duration?: number }) => {
+      const duration = data?.duration || 4000;
+      setResetDuration(duration);
+      setIsResetting(true);
+      setTimeout(() => {
+        setIsResetting(false);
+      }, duration);
+    });
+
     return () => {
       socket.off('uam:update');
       socket.off('map:update');
       socket.off('landed:update');
+      socket.off('simulation:resetting');
     };
   }, []);
 
@@ -75,6 +90,8 @@ export function useUamData() {
     mapUams,
     landedUams,
     isQueueLocked,
+    isResetting,
+    resetDuration,
     pendingChangeCount,
     handleToggleLock,
     approveLanding,

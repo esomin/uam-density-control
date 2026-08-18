@@ -46,7 +46,7 @@ export class AppService implements OnModuleInit {
   }
 
   startSimulation() {
-    const uamId = `UAM-${Math.floor(Math.random() * 1000)}`;
+    const uamId = `UAM-${Date.now().toString().slice(-4)}-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`;
     const start = this.VERTIPORTS[Math.floor(Math.random() * this.VERTIPORTS.length)];
     let end = this.VERTIPORTS[Math.floor(Math.random() * this.VERTIPORTS.length)];
     while (start === end) {

@@ -7,10 +7,13 @@ import {
   BatteryFull,
   CalendarClock,
   CheckCircle2,
+  Lock,
   Map as MapIcon,
   MapPin,
   Navigation,
+  Plane,
   PlaneLanding,
+  Unlock,
   XCircle
 } from "lucide-react";
 import { Map3D } from './Map3D';
@@ -168,13 +171,12 @@ function App() {
     };
   });
 
-  // 타임라인 최대 ETA(분) — 스케일 기준
-  const maxEtaMin = Math.max(...etaList.map(e => e.etaMin), 1);
+  const maxDistKm = Math.max(...etaList.map(e => e.distKm), 1);
 
   const firstEmergencyUamId = displayedUams.find(uam => isEmergency(uam))?.uamId;
 
   return (
-    <div className="bg-slate-50 min-h-screen text-slate-800 flex flex-col font-sans overflow-hidden">
+    <div className="bg-slate-50 h-screen text-slate-800 flex flex-col font-sans overflow-hidden">
       {/* ── 헤더 (Background: Main Color) ── */}
       <div className="bg-main-primary text-white px-8 py-4 flex items-center justify-between shadow-sm flex-shrink-0">
         <div className="flex items-center gap-3">
@@ -184,8 +186,8 @@ function App() {
           <h1 className="text-2xl font-bold tracking-tight text-white">UAM Density Control Dashboard</h1>
         </div>
         {hasLanded && (
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-white/20 border border-white/30 text-white shadow-2xs backdrop-blur-xs">
-            <PlaneLanding size={14} className="text-white" />
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border-2 shadow-2xs">
+            <PlaneLanding size={14} />
             <span>착륙 완료 {landedUams.length}대</span>
           </div>
         )}
@@ -210,7 +212,7 @@ function App() {
               </span>
             )}
             {hasLanded && (
-              <span className={`ml-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${activeTab === 'list' ? 'bg-main-primary-bg text-main-primary-text' : 'bg-gray-100 text-gray-600'
+              <span className={`ml-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${activeTab === 'list' ? 'bg-teal-50 text-teal-700' : 'bg-gray-100 text-gray-600'
                 }`}>
                 착륙 {landedUams.length}
               </span>
@@ -243,14 +245,14 @@ function App() {
           <div className="flex flex-1 overflow-hidden gap-6" style={{ minWidth: 0 }}>
 
             {/* 좌측 패널: Outer Card — 착륙 우선순위 기체 목록 (스크롤) */}
-            <div className="flex flex-col flex-[2] min-w-0 bg-white border border-gray-200 rounded-xl p-5 shadow-xs overflow-y-auto">
+            <div className="flex flex-col flex-[2.5] min-w-0 bg-white border border-gray-200 rounded-xl p-5 shadow-xs overflow-y-auto">
 
               {/* 헤더: 타이틀 및 실시간/잠금 토글 */}
               <div className="flex items-center justify-between mb-5 pb-3 border-b border-gray-100">
                 <div className="flex items-center gap-2">
-                  <h2 className="text-base font-bold text-gray-800 flex items-center gap-2">
+                  <h2 className="text-base font-bold text-gray-800 flex items-center gap-2 font-mono uppercase tracking-wider">
                     <AlignJustify size={18} className="text-main-primary-text" />
-                    착륙 우선순위 ({displayedUams.length}대)
+                    LANDING PRIORITY ({displayedUams.length} UAMs)
                   </h2>
                 </div>
 
@@ -262,8 +264,9 @@ function App() {
                   )}
 
                   <label className="flex items-center gap-2 cursor-pointer select-none">
-                    <span className={`text-xs font-medium transition-colors duration-200 ${isQueueLocked ? 'text-main-primary-text font-semibold' : 'text-gray-500'}`}>
-                      {isQueueLocked ? '잠금 중' : '실시간'}
+                    <span className={`flex items-center gap-1 text-xs font-medium transition-colors duration-200 ${isQueueLocked ? 'text-main-primary-text font-semibold' : 'text-gray-500'}`}>
+                      {isQueueLocked ? <Lock size={12} className="text-main-primary" /> : <Unlock size={12} className="text-gray-400" />}
+                      {isQueueLocked ? 'Lock' : 'RealTime'}
                     </span>
                     <div className="relative inline-flex items-center cursor-pointer">
                       <input
@@ -287,7 +290,6 @@ function App() {
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 items-stretch">
                     {displayedUams.slice(0, 3).map((uam, index) => {
-                      const isLowBattery = uam.batteryPercent < EMERGENCY_BATTERY_THRESHOLD;
                       const uamEmergency = isEmergency(uam);
                       const isFirstEmergency = uam.uamId === firstEmergencyUamId;
                       return (
@@ -296,26 +298,27 @@ function App() {
                           className={`flex flex-col justify-between h-full rounded-lg p-3 transition-all duration-200 relative group border ${isFirstEmergency
                             ? 'first-emergency-card shadow-md'
                             : uamEmergency
-                              ? 'bg-rose-50/80 border-rose-200 hover:border-rose-300 shadow-2xs'
+                              ? 'border-rose-500 bg-rose-50/70 shadow-2xs'
                               : uam.waitingForLanding
-                                ? 'bg-amber-50/60 border-amber-200 hover:border-amber-300 shadow-2xs'
-                                : 'bg-gray-50 border-gray-100 hover:border-main-primary shadow-2xs'
+                                ? 'border-amber-500 bg-amber-50/60 shadow-2xs'
+                                : 'border-main-primary bg-main-primary-bg/30 shadow-2xs'
                             }`}
                         >
                           <div>
                             {/* Nested Card Header */}
                             <div className="flex flex-wrap items-center justify-between gap-1 mb-2 min-w-0">
-                              <div className="flex items-center gap-0.5 min-w-0">
-                                <span className="text-[10px] font-mono font-bold text-gray-500 shrink-0">#{index + 1}</span>
-                                <Badge variant="neutral" size="sm" className="truncate font-mono font-bold text-[10px] px-1 py-0">
+                              <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                                <span className="text-[10px] font-mono font-bold text-gray-400 shrink-0">#{index + 1}</span>
+                                <span className={`font-mono text-xs font-bold truncate ${uamEmergency ? 'text-rose-700'
+                                  : uam.waitingForLanding ? 'text-amber-700'
+                                    : 'text-main-primary-text'
+                                  }`}>
                                   {uam.uamId}
-                                </Badge>
+                                </span>
                                 {uamEmergency && <AlertCircle className="text-rose-500 animate-pulse w-3.5 h-3.5 shrink-0" />}
                               </div>
 
-                              {uamEmergency ? (
-                                <Badge variant="emergency" className="text-[10px] px-1 py-0.5">Emergency</Badge>
-                              ) : uam.waitingForLanding ? (
+                              {uam.waitingForLanding ? (
                                 <Badge variant="waiting" className="text-[10px] px-1 py-0.5">착륙 대기</Badge>
                               ) : (
                                 <Badge variant="flight" className="text-[10px] px-1 py-0.5">비행 중</Badge>
@@ -325,13 +328,20 @@ function App() {
                             {/* Nested Card Content */}
                             <div className="flex flex-col gap-1 my-2">
                               <p className="flex items-center gap-1.5 text-xs text-gray-700">
-                                <BatteryFull className={isLowBattery ? 'text-rose-600 shrink-0' : 'text-main-primary shrink-0'} size={14} />
-                                <span className={`font-mono whitespace-nowrap ${isLowBattery ? 'text-rose-600 font-bold' : 'font-bold'}`}>
+                                <BatteryFull className="text-gray-400 shrink-0" size={14} />
+                                <span className="font-mono font-bold whitespace-nowrap">
                                   배터리 {uam.batteryPercent.toFixed(1)}%
                                 </span>
                               </p>
-                              <p className="text-[10px] text-gray-500 font-mono whitespace-nowrap truncate">
-                                {uam.latitude.toFixed(4)}, {uam.longitude.toFixed(4)} · {uam.altitude.toFixed(0)}m
+                              <p className="flex items-center gap-3 text-[10px] text-gray-500 font-mono mt-0.5">
+                                <span className="flex items-center gap-1 min-w-0">
+                                  <MapPin size={12} className="text-gray-400 shrink-0" />
+                                  <span className="truncate">{uam.latitude.toFixed(4)}, {uam.longitude.toFixed(4)}</span>
+                                </span>
+                                <span className="flex items-center gap-1 shrink-0">
+                                  <Navigation size={12} className="text-gray-400 shrink-0" />
+                                  <span>{uam.altitude.toFixed(0)}m</span>
+                                </span>
                               </p>
                             </div>
                           </div>
@@ -364,7 +374,6 @@ function App() {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 items-stretch">
                     {displayedUams.slice(3).map((uam, i) => {
                       const index = i + 3;
-                      const isLowBattery = uam.batteryPercent < 20;
                       const uamEmergency = isEmergency(uam);
                       const isFirstEmergency = uam.uamId === firstEmergencyUamId;
                       return (
@@ -373,25 +382,26 @@ function App() {
                           className={`flex flex-col justify-between h-full rounded-lg p-3 transition-all duration-200 relative group border ${isFirstEmergency
                             ? 'first-emergency-card shadow-md'
                             : uamEmergency
-                              ? 'bg-rose-50/80 border-rose-200 hover:border-rose-300 shadow-2xs'
+                              ? 'border-rose-500 bg-rose-50/70 shadow-2xs'
                               : uam.waitingForLanding
-                                ? 'bg-amber-50/60 border-amber-200 hover:border-amber-300 shadow-2xs'
-                                : 'bg-gray-50 border-gray-100 hover:border-main-primary shadow-2xs'
+                                ? 'border-amber-500 bg-amber-50/60 shadow-2xs'
+                                : 'border-main-primary bg-main-primary-bg/30 shadow-2xs'
                             }`}
                         >
                           <div>
                             <div className="flex flex-wrap items-center justify-between gap-1 mb-2 min-w-0">
-                              <div className="flex items-center gap-0.5 min-w-0">
-                                <span className="text-[10px] font-mono font-bold text-gray-500 shrink-0">#{index + 1}</span>
-                                <Badge variant="neutral" size="sm" className="truncate font-mono font-bold text-[10px] px-1 py-0">
+                              <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                                <span className="text-[10px] font-mono font-bold text-gray-400 shrink-0">#{index + 1}</span>
+                                <span className={`font-mono text-xs font-bold truncate ${uamEmergency ? 'text-rose-700'
+                                  : uam.waitingForLanding ? 'text-amber-700'
+                                    : 'text-main-primary-text'
+                                  }`}>
                                   {uam.uamId}
-                                </Badge>
+                                </span>
                                 {uamEmergency && <AlertCircle className="text-rose-500 animate-pulse w-3.5 h-3.5 shrink-0" />}
                               </div>
 
-                              {uamEmergency ? (
-                                <Badge variant="emergency" className="text-[10px] px-1 py-0.5">Emergency</Badge>
-                              ) : uam.waitingForLanding ? (
+                              {uam.waitingForLanding ? (
                                 <Badge variant="waiting" className="text-[10px] px-1 py-0.5">착륙 대기</Badge>
                               ) : (
                                 <Badge variant="flight" className="text-[10px] px-1 py-0.5">비행 중</Badge>
@@ -400,13 +410,20 @@ function App() {
 
                             <div className="flex flex-col gap-1 my-2">
                               <p className="flex items-center gap-1.5 text-xs text-gray-700">
-                                <BatteryFull className={isLowBattery ? 'text-rose-600 shrink-0' : 'text-main-primary shrink-0'} size={14} />
-                                <span className={`font-mono whitespace-nowrap ${isLowBattery ? 'text-rose-600 font-bold' : ''}`}>
+                                <BatteryFull className="text-gray-400 shrink-0" size={14} />
+                                <span className="font-mono font-bold whitespace-nowrap">
                                   배터리 {uam.batteryPercent.toFixed(1)}%
                                 </span>
                               </p>
-                              <p className="text-[10px] text-gray-500 font-mono whitespace-nowrap truncate">
-                                {uam.latitude.toFixed(4)}, {uam.longitude.toFixed(4)} · {uam.altitude.toFixed(0)}m
+                              <p className="flex items-center gap-3 text-[10px] text-gray-500 font-mono mt-0.5">
+                                <span className="flex items-center gap-1 min-w-0">
+                                  <MapPin size={12} className="text-gray-400 shrink-0" />
+                                  <span className="truncate">{uam.latitude.toFixed(4)}, {uam.longitude.toFixed(4)}</span>
+                                </span>
+                                <span className="flex items-center gap-1 shrink-0">
+                                  <Navigation size={12} className="text-gray-400 shrink-0" />
+                                  <span>{uam.altitude.toFixed(0)}m</span>
+                                </span>
                               </p>
                             </div>
                           </div>
@@ -431,7 +448,7 @@ function App() {
             </div>
 
             {/* ── 가운데 패널: Outer Card — 착륙 우선순위 기체 맵 ── */}
-            <div className="flex-[3] min-w-0 bg-white border border-gray-200 rounded-xl shadow-xs overflow-hidden relative flex flex-col">
+            <div className="flex-[2.5] min-w-0 bg-white border border-gray-200 rounded-xl shadow-xs overflow-hidden relative flex flex-col">
               <LandingPriorityMap uams={displayedUams} />
             </div>
 
@@ -439,15 +456,15 @@ function App() {
             <div className="flex-[1] min-w-0 bg-white border border-gray-200 rounded-xl p-5 shadow-xs flex flex-col overflow-hidden">
               {/* 타임라인 헤더 */}
               <div className="pb-3 mb-3 border-b border-gray-100">
-                <h2 className="text-sm font-bold text-gray-800 flex items-center gap-2">
+                <h2 className="text-sm font-bold text-gray-800 flex items-center gap-2 font-mono uppercase tracking-wider">
                   <CalendarClock size={16} className="text-main-primary-text" />
                   LANDING SEQUENCE
                   <span className="ml-auto text-xs font-normal text-gray-400 font-mono">
-                    {etaList.length}대 추적 중
+                    {etaList.length} Tracking
                   </span>
                 </h2>
-                <p className="text-[11px] text-gray-400 mt-1">
-                  버티포트 기준 · 크루즈 150km/h 적용
+                <p className="text-[11px] text-gray-400 mt-1 font-mono uppercase tracking-wider">
+                  Vertiport Base · Cruise 150km/h
                 </p>
               </div>
 
@@ -474,45 +491,50 @@ function App() {
 
                     {/* 기체 목록 */}
                     <div className="flex flex-col gap-2.5">
-                      {etaList.map((entry) => {
-                        const isTop3 = entry.rank <= 3;
-                        const barWidth = Math.max(8, Math.round((entry.etaMin / maxEtaMin) * 100));
-
+                      {etaList.map((entry, index) => {
                         return (
-                          <div key={entry.uam.uamId} className="flex items-start gap-2">
-                            {/* 시간 레이블 */}
-                            <span className={`text-[10px] w-8 text-right flex-shrink-0 font-mono pt-2 font-semibold ${entry.isWaiting ? 'text-amber-600' : 'text-gray-500'}`}>
-                              {entry.isWaiting ? '~1m' : `+${entry.etaMin}m`}
-                            </span>
+                          <div key={entry.uam.uamId} className="flex flex-col gap-2.5">
+                            {index === 0 && (
+                              <div className="flex items-center gap-2 mb-0.5 ml-10">
+                                <span className="text-[10px] font-bold tracking-wider text-main-primary-text uppercase font-mono">Priority Zone</span>
+                                <div className="flex-1 h-px bg-main-primary-bg" />
+                              </div>
+                            )}
+                            {index === 3 && (
+                              <div className="flex items-center gap-2 mt-2 mb-0.5 ml-10">
+                                <span className="text-[10px] font-bold tracking-wider text-gray-500 uppercase font-mono">Standby Queue</span>
+                                <div className="flex-1 h-px bg-gray-200" />
+                              </div>
+                            )}
+                            <div className="flex items-start gap-2">
+                              {/* 시간 레이블 */}
+                              <span className={`text-[10px] w-8 text-right flex-shrink-0 font-mono pt-2 ${entry.isWaiting ? 'text-gray-900 font-bold' : 'text-gray-400 font-medium'}`}>
+                                {entry.isWaiting ? '~1m' : `+${entry.etaMin}m`}
+                              </span>
 
-                            {/* 노드 점 */}
-                            <div className="flex-shrink-0 pt-1.5 z-10">
-                              <div className={`w-2.5 h-2.5 rounded-full border-2 transition-all duration-300 ${entry.isUamEmergency
-                                ? 'bg-rose-50/70 border-rose-300'
-                                : entry.isWaiting
-                                  ? 'bg-amber-500 border-amber-300 ring-2 ring-amber-200'
-                                  : isTop3
-                                    ? 'bg-main-primary border-main-primary'
-                                    : 'bg-gray-400 border-gray-300'
-                                }`} />
-                            </div>
+                              {/* 노드 점 */}
+                              <div className="flex-shrink-0 pt-1.5 z-10">
+                                <div className={`w-2.5 h-2.5 rounded-full border-2 transition-all duration-300 ${entry.isUamEmergency
+                                  ? 'bg-rose-500 border-rose-300'
+                                  : entry.isWaiting
+                                    ? 'bg-amber-500 border-amber-300'
+                                    : 'bg-main-primary border-main-primary'
+                                  }`} />
+                              </div>
 
                             {/* 컨텐츠 카드 (Nested Card style) */}
-                            <div className={`flex-1 rounded-lg border p-2.5 transition-all duration-200 shadow-2xs ${entry.isUamEmergency
-                              ? 'border-rose-200 bg-rose-50/70'
+                            <div className={`flex-1 rounded-lg border transition-all duration-200 p-2.5 shadow-2xs ${entry.isUamEmergency
+                              ? 'border-rose-500 bg-rose-50/70'
                               : entry.isWaiting
-                                ? 'border-amber-200 bg-amber-50/60'
-                                : isTop3
-                                  ? 'border-main-primary bg-main-primary-bg/40'
-                                  : 'border-gray-100 bg-gray-50'
+                                ? 'border-amber-500 bg-amber-50/60'
+                                : 'border-main-primary bg-main-primary-bg/30'
                               }`}>
                               {/* 최상단: 순위 + ID + 상태 */}
                               <div className="flex items-center gap-1.5 mb-1.5">
                                 <span className="text-[10px] font-bold text-gray-400 font-mono">#{entry.rank}</span>
                                 <span className={`font-mono text-xs font-bold flex-1 truncate ${entry.isUamEmergency ? 'text-rose-700'
                                   : entry.isWaiting ? 'text-amber-700'
-                                    : isTop3 ? 'text-main-primary-text'
-                                      : 'text-gray-700'
+                                    : 'text-main-primary-text'
                                   }`}>
                                   {entry.uam.uamId}
                                   {entry.isUamEmergency && <AlertCircle size={10} className="inline ml-1 text-rose-500 animate-pulse" />}
@@ -524,31 +546,53 @@ function App() {
                                 )}
                               </div>
 
-                              {/* ETA 바 + 도착 시각 */}
-                              <div className="flex items-center gap-2">
-                                <div className="flex-1 h-1.5 rounded-full bg-gray-200 overflow-hidden">
-                                  <div
-                                    className={`h-full rounded-full transition-all duration-700 ${entry.isUamEmergency ? 'bg-rose-500'
-                                      : entry.isWaiting ? 'bg-amber-500'
-                                        : isTop3 ? 'bg-teal-500'
-                                          : 'bg-gray-400'
-                                      }`}
-                                    style={{ width: `${barWidth}%` }}
-                                  />
+                              {/* 미니 슬라이더 타임라인 */}
+                              <div className="my-2">
+                                <div className="flex items-center justify-between text-[9px] text-gray-400 font-mono mb-1">
+                                  <span>DEP</span>
+                                  <span className="text-gray-600 font-semibold">{entry.arrivalTime} · ARR</span>
                                 </div>
-                                <span className="text-[10px] text-gray-600 font-mono font-medium flex-shrink-0">
-                                  {entry.arrivalTime}
-                                </span>
-                              </div>
+                                <div className="relative w-full h-4 flex items-center">
+                                  {/* 배경 트랙 선 (Background Track Line) */}
+                                  <div className="absolute left-0 right-0 h-1 bg-slate-200/60 rounded-full" />
 
-                              {!entry.isWaiting && (
-                                <span className="text-[10px] text-gray-500 font-mono mt-1 block">
-                                  {entry.distKm.toFixed(1)} km
-                                </span>
-                              )}
+                                  {/* 채워진 트랙 선 (Filled Track Line) */}
+                                  <div
+                                    className={`absolute left-0 h-1 rounded-full transition-all duration-700 ${entry.isUamEmergency
+                                      ? 'bg-rose-500'
+                                      : entry.isWaiting
+                                        ? 'bg-amber-500'
+                                        : 'bg-main-primary'
+                                      }`}
+                                    style={{ width: `${entry.isWaiting ? 90 : Math.min(85, Math.max(5, Math.round((1 - entry.distKm / maxDistKm) * 85)))}%` }}
+                                  />
+
+                                  {/* 버티포트 도착지점 (Vertiport Point) */}
+                                  <div className="absolute right-0 w-1.5 h-1.5 rounded-full bg-slate-300" />
+
+                                  {/* 비행기 아이콘 (Airplane Icon) */}
+                                  <div
+                                    className={`absolute -translate-x-1/2 transition-all duration-700 flex items-center justify-center ${entry.isUamEmergency
+                                      ? 'text-rose-500'
+                                      : entry.isWaiting
+                                        ? 'text-amber-500'
+                                        : 'text-main-primary'
+                                      }`}
+                                    style={{ left: `${entry.isWaiting ? 90 : Math.min(85, Math.max(5, Math.round((1 - entry.distKm / maxDistKm) * 85)))}%` }}
+                                  >
+                                    <Plane size={14} className="rotate-45 transform" />
+                                  </div>
+                                </div>
+                                {!entry.isWaiting && (
+                                  <div className="text-[9px] text-gray-400 font-mono mt-1 text-center">
+                                    남은 거리: {entry.distKm.toFixed(1)} km
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           </div>
-                        );
+                        </div>
+                      );
                       })}
                     </div>
 
@@ -567,23 +611,23 @@ function App() {
               {hasLanded && (
                 <div className="border-t border-gray-100 pt-3 mt-3 max-h-[160px] overflow-y-auto">
                   <h3 className="text-[11px] font-bold text-gray-600 uppercase tracking-wider mb-2 flex items-center gap-1.5 font-mono">
-                    <PlaneLanding size={12} className="text-main-primary-text" />
+                    <PlaneLanding size={12} className="text-teal-600" />
                     착륙 완료 로그
-                    <span className="ml-auto text-main-primary-text font-bold">{landedUams.length}대</span>
+                    <span className="ml-auto text-teal-600 font-bold">{landedUams.length}대</span>
                   </h3>
                   <div className="flex flex-col gap-1.5">
                     {landedUams.map((record, idx) => (
                       <div
                         key={`${record.uamId}-${record.landedAt}`}
                         className={`flex items-center gap-2 px-2.5 py-1.5 rounded-md border text-[11px] transition-all duration-300 ${idx === 0
-                          ? 'border-main-primary bg-main-primary-bg text-main-primary-text shadow-2xs font-semibold'
+                          ? 'border-teal-500/30 bg-teal-50/50 text-teal-700 shadow-2xs font-semibold'
                           : 'border-gray-100 bg-gray-50 text-gray-600'
                           }`}
                       >
-                        <CheckCircle2 size={12} className={idx === 0 ? 'text-main-primary' : 'text-gray-400'} />
+                        <CheckCircle2 size={12} className={idx === 0 ? 'text-teal-500' : 'text-gray-400'} />
                         <span className="font-mono font-bold flex-1 truncate">{record.uamId}</span>
                         <span className="font-mono text-gray-500">{formatLandedAt(record.landedAt)}</span>
-                        {idx === 0 && <span className="text-main-primary">●</span>}
+                        {idx === 0 && <span className="text-teal-500">●</span>}
                       </div>
                     ))}
                   </div>
@@ -608,33 +652,33 @@ function App() {
           onClick={handleCancel}
         >
           <div
-            className="bg-white border border-gray-200 rounded-2xl p-8 w-[420px] shadow-2xl text-gray-900"
+            className="bg-white border border-gray-200 rounded-2xl p-6 w-[360px] shadow-2xl text-gray-900"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center gap-3 mb-6">
+            <div className="flex items-center gap-2.5 mb-4">
               {isEmergency(pendingApproval) ? (
-                <AlertCircle className="text-rose-600 w-7 h-7 animate-pulse" />
+                <AlertCircle className="text-rose-600 w-5 h-5 animate-pulse" />
               ) : (
-                <Navigation className="text-main-primary-text w-7 h-7" />
+                <Navigation className="text-main-primary-text w-5 h-5" />
               )}
-              <h2 className={`text-xl font-bold ${isEmergency(pendingApproval) ? 'text-rose-600' : 'text-main-primary-text'}`}>
+              <h2 className={`text-base font-bold ${isEmergency(pendingApproval) ? 'text-rose-600' : 'text-main-primary-text'}`}>
                 착륙 승인 확인
               </h2>
             </div>
 
-            <p className="text-gray-500 text-sm mb-4">
+            <p className="text-gray-500 text-xs mb-4">
               아래 기체의 착륙을 승인합니다. 정보를 확인하세요.
             </p>
 
-            <div className={`rounded-xl p-5 mb-2 border ${isEmergency(pendingApproval) ? 'bg-rose-50 border-rose-200' : 'bg-gray-50 border-gray-200'}`}>
-              <p className="font-mono text-2xl font-bold text-gray-900 mb-3">
+            <div className={`rounded-xl p-4 mb-2 border ${isEmergency(pendingApproval) ? 'bg-rose-50 border-rose-200' : 'bg-gray-50 border-gray-200'}`}>
+              <p className="font-mono text-base font-bold text-gray-900 mb-2">
                 {pendingApproval.uamId}
               </p>
 
-              <div className="flex flex-col gap-2 text-sm">
+              <div className="flex flex-col gap-1.5 text-xs">
                 <div className="flex items-center gap-2">
                   <BatteryFull
-                    size={16}
+                    size={14}
                     className={pendingApproval.batteryPercent < 20 ? 'text-rose-600' : 'text-main-primary'}
                   />
                   <span className={pendingApproval.batteryPercent < 20 ? 'text-rose-600 font-bold' : 'text-gray-700'}>
@@ -643,14 +687,14 @@ function App() {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <MapPin size={16} className="text-gray-400" />
+                  <MapPin size={14} className="text-gray-400" />
                   <span className="text-gray-700 font-mono">
                     좌표: {pendingApproval.latitude.toFixed(4)}, {pendingApproval.longitude.toFixed(4)}
                   </span>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <Navigation size={16} className="text-gray-400" />
+                  <Navigation size={14} className="text-gray-400" />
                   <span className="text-gray-700 font-mono">
                     고도: {pendingApproval.altitude.toFixed(0)}m
                   </span>
@@ -658,7 +702,7 @@ function App() {
 
                 {isEmergency(pendingApproval) && (
                   <div className="flex items-center gap-2 mt-1">
-                    <AlertCircle size={16} className="text-rose-600 animate-pulse" />
+                    <AlertCircle size={14} className="text-rose-600 animate-pulse" />
                     <span className="text-rose-600 font-bold">비상 상황 기체</span>
                   </div>
                 )}
@@ -672,18 +716,18 @@ function App() {
             <div className="flex gap-3 mt-6">
               <button
                 id="modal-cancel-btn"
-                className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200 font-medium text-sm h-10 rounded-lg flex items-center justify-center cursor-pointer transition-colors"
+                className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200 font-medium text-xs h-9 rounded-lg flex items-center justify-center cursor-pointer transition-colors"
                 onClick={handleCancel}
               >
-                <XCircle size={16} className="mr-2" />
+                <XCircle size={14} className="mr-1.5" />
                 취소
               </button>
               <button
                 id="modal-confirm-btn"
-                className={`flex-1 font-bold text-sm h-10 text-white shadow-2xs rounded-lg flex items-center justify-center cursor-pointer transition-colors ${isEmergency(pendingApproval) ? 'bg-rose-600 hover:bg-rose-700' : 'bg-main-primary hover:bg-main-primary-text'}`}
+                className={`flex-1 font-bold text-xs h-9 text-white shadow-2xs rounded-lg flex items-center justify-center cursor-pointer transition-colors ${isEmergency(pendingApproval) ? 'bg-rose-600 hover:bg-rose-700' : 'bg-main-primary hover:bg-main-primary-text'}`}
                 onClick={handleConfirm}
               >
-                <CheckCircle2 size={16} className="mr-2" />
+                <CheckCircle2 size={14} className="mr-1.5" />
                 최종 승인
               </button>
             </div>

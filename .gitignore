@@ -33,3 +33,6 @@ dump.rdb
 
 # TypeScript
 *.tsbuildinfo
+
+# Turbo
+.turbo/

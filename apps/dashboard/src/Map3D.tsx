@@ -123,10 +123,10 @@ export function Map3D({ uams }: Map3DProps) {
         })}
       </Map>
 
-      <div className="absolute top-4 left-4 z-10 bg-white/90 border border-gray-200 shadow-md backdrop-blur-md px-3 py-2 rounded-lg text-xs font-mono pointer-events-none flex flex-col gap-0.5">
-        <span className="text-teal-700 font-bold">3D RADAR VIEW ACTIVE</span>
-        <span className="text-gray-600">
-          TRACKING <span className="text-teal-700 font-bold">{uams.length}</span> / 50 UAM
+      <div className="absolute top-4 left-4 z-10 bg-white/90 dark:bg-zinc-800/90 border border-gray-200 dark:border-zinc-700 shadow-md backdrop-blur-md px-3 py-2 rounded-lg text-xs font-mono pointer-events-none flex flex-col gap-0.5">
+        <span className="text-teal-700 dark:text-teal-400 font-bold">3D RADAR VIEW ACTIVE</span>
+        <span className="text-gray-600 dark:text-zinc-300">
+          TRACKING <span className="text-teal-700 dark:text-teal-400 font-bold">{uams.length}</span> / 50 UAM
         </span>
       </div>
     </div>

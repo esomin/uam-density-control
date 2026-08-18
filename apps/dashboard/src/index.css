@@ -1,6 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:is(.dark, .dark *));
 
 :root {
     font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -44,6 +44,33 @@
     --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
     --sidebar-border: oklch(0.929 0.013 255.508);
     --sidebar-ring: oklch(0.704 0.04 256.788);
+
+    /* ── Main Primary Tokens (Light) ── */
+    --main-primary: var(--color-sky-600);
+    --main-primary-text: var(--color-sky-700);
+    --main-primary-bg: color-mix(in srgb, var(--color-sky-50) 70%, transparent);
+
+    /* ── UAM Status Tokens (Light) ── */
+    --status-emergency: var(--color-rose-500);
+    --status-emergency-text: var(--color-rose-700);
+    --status-emergency-bg: color-mix(in srgb, var(--color-rose-50) 70%, transparent);
+    --status-emergency-border: var(--color-rose-200);
+    --status-emergency-action: var(--color-rose-600);
+    --status-emergency-action-hover: var(--color-rose-700);
+
+    --status-waiting: var(--color-amber-500);
+    --status-waiting-text: var(--color-amber-700);
+    --status-waiting-bg: color-mix(in srgb, var(--color-amber-50) 60%, transparent);
+    --status-waiting-border: var(--color-amber-200);
+    --status-waiting-action: var(--color-amber-600);
+    --status-waiting-action-hover: var(--color-amber-700);
+
+    --status-landed: var(--color-teal-500);
+    --status-landed-text: var(--color-teal-700);
+    --status-landed-bg: color-mix(in srgb, var(--color-teal-50) 70%, transparent);
+    --status-landed-border: var(--color-teal-200);
+    --status-landed-action: var(--color-teal-600);
+    --status-landed-action-hover: var(--color-teal-700);
 }
 
 body {
@@ -58,33 +85,36 @@ body {
 }
 
 @theme inline {
-    --color-main-primary: var(--color-sky-600);
-    --color-main-primary-text: var(--color-sky-700);
-    --color-main-primary-bg: color-mix(in srgb, var(--color-sky-50) 70%, transparent);
+    --color-main-primary: var(--main-primary);
+    --color-main-primary-text: var(--main-primary-text);
+    --color-main-primary-bg: var(--main-primary-bg);
 
-    /* ── UAM Status Tokens (Emergency: Red/Rose) ── */
-    --color-status-emergency: var(--color-rose-500);
-    --color-status-emergency-text: var(--color-rose-700);
-    --color-status-emergency-bg: color-mix(in srgb, var(--color-rose-50) 70%, transparent);
-    --color-status-emergency-border: var(--color-rose-200);
-    --color-status-emergency-action: var(--color-rose-600);
-    --color-status-emergency-action-hover: var(--color-rose-700);
+    /* ── UAM Status Tokens ── */
+    --color-status-emergency: var(--status-emergency);
+    --color-status-emergency-text: var(--status-emergency-text);
+    --color-status-emergency-bg: var(--status-emergency-bg);
+    --color-status-emergency-dark-bg: color-mix(in srgb, var(--color-rose-900) 30%, transparent);
+    --color-status-emergency-border: var(--status-emergency-border);
+    --color-status-emergency-action: var(--status-emergency-action);
+    --color-status-emergency-action-hover: var(--status-emergency-action-hover);
 
     /* ── UAM Status Tokens (Waiting/Standby: Orange/Amber) ── */
-    --color-status-waiting: var(--color-amber-500);
-    --color-status-waiting-text: var(--color-amber-700);
-    --color-status-waiting-bg: color-mix(in srgb, var(--color-amber-50) 60%, transparent);
-    --color-status-waiting-border: var(--color-amber-200);
-    --color-status-waiting-action: var(--color-amber-600);
-    --color-status-waiting-action-hover: var(--color-amber-700);
+    --color-status-waiting: var(--status-waiting);
+    --color-status-waiting-text: var(--status-waiting-text);
+    --color-status-waiting-bg: var(--status-waiting-bg);
+    --color-status-waiting-dark-bg: color-mix(in srgb, var(--color-amber-900) 10%, transparent);
+    --color-status-waiting-border: var(--status-waiting-border);
+    --color-status-waiting-action: var(--status-waiting-action);
+    --color-status-waiting-action-hover: var(--status-waiting-action-hover);
 
     /* ── UAM Status Tokens (Landed/Safety: Teal) ── */
-    --color-status-landed: var(--color-teal-500);
-    --color-status-landed-text: var(--color-teal-700);
-    --color-status-landed-bg: color-mix(in srgb, var(--color-teal-50) 70%, transparent);
-    --color-status-landed-border: var(--color-teal-200);
-    --color-status-landed-action: var(--color-teal-600);
-    --color-status-landed-action-hover: var(--color-teal-700);
+    --color-status-landed: var(--status-landed);
+    --color-status-landed-text: var(--status-landed-text);
+    --color-status-landed-bg: var(--status-landed-bg);
+    --color-status-landed-dark-bg: color-mix(in srgb, var(--color-teal-900) 30%, transparent);
+    --color-status-landed-border: var(--status-landed-border);
+    --color-status-landed-action: var(--status-landed-action);
+    --color-status-landed-action-hover: var(--status-landed-action-hover);
 
     --radius-sm: calc(var(--radius) - 4px);
     --radius-md: calc(var(--radius) - 2px);
@@ -158,6 +188,24 @@ body {
     --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
     --sidebar-border: oklch(1 0 0 / 10%);
     --sidebar-ring: oklch(0.551 0.027 264.364);
+
+    /* ── Main Primary Tokens (Dark: 밝은 스카이색) ── */
+    --main-primary: var(--color-blue-300);
+    --main-primary-text: var(--color-blue-200);
+    --main-primary-bg: color-mix(in srgb, var(--color-blue-900) 35%, transparent);
+
+    /* ── UAM Status Tokens (Dark: 밝은 텍스트 및 조화로운 배경) ── */
+    --status-emergency-text: var(--color-rose-300);
+    --status-emergency-bg: color-mix(in srgb, var(--color-rose-900) 30%, transparent);
+    --status-emergency-border: color-mix(in srgb, var(--color-rose-700) 50%, transparent);
+
+    --status-waiting-text: var(--color-amber-300);
+    --status-waiting-bg: color-mix(in srgb, var(--color-amber-900) 30%, transparent);
+    --status-waiting-border: color-mix(in srgb, var(--color-amber-700) 50%, transparent);
+
+    --status-landed-text: var(--color-teal-300);
+    --status-landed-bg: color-mix(in srgb, var(--color-teal-900) 30%, transparent);
+    --status-landed-border: color-mix(in srgb, var(--color-teal-700) 50%, transparent);
 }
 
 @layer base {
@@ -171,10 +219,13 @@ body {
 }
 
 @keyframes emergency-pulse {
-    0%, 100% {
+
+    0%,
+    100% {
         border-color: var(--color-status-emergency);
         box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-status-emergency) 40%, transparent);
     }
+
     50% {
         border-color: var(--color-status-emergency-action);
         box-shadow: 0 0 0 6px transparent;
@@ -185,4 +236,8 @@ body {
     background-color: var(--color-status-emergency-bg) !important;
     border-color: var(--color-status-emergency) !important;
     animation: emergency-pulse 2s infinite ease-in-out;
+}
+
+.dark .first-emergency-card {
+    background-color: var(--color-status-emergency-dark-bg) !important;
 }

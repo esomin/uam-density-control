@@ -19,7 +19,7 @@ export function UamCard({ uam, index, isFirstEmergency, onApprove }: UamCardProp
         isFirstEmergency
           ? 'first-emergency-card shadow-md'
           : uamEmergency
-            ? 'border-status-emergency bg-status-emergency-bg shadow-2xs'
+            ? 'border-status-emergency bg-status-emergency-bg dark:bg-status-emergency-dark-bg shadow-2xs'
             : uam.waitingForLanding
               ? 'border-status-waiting bg-status-waiting-bg dark:bg-status-waiting-dark-bg shadow-2xs'
               : 'border-main-primary bg-main-primary-bg/30 shadow-2xs'
@@ -84,7 +84,7 @@ export function UamCard({ uam, index, isFirstEmergency, onApprove }: UamCardProp
             ? 'bg-status-emergency-action hover:bg-status-emergency-action-hover'
             : uam.waitingForLanding
               ? 'bg-status-waiting-action hover:bg-status-waiting-action-hover'
-              : 'bg-slate-700 hover:bg-slate-800'
+              : 'bg-slate-700 hover:bg-slate-800 dark:bg-slate-900 dark:hover:bg-slate-950 dark:border dark:border-slate-800'
         }`}
         onClick={() => onApprove(uam)}
       >

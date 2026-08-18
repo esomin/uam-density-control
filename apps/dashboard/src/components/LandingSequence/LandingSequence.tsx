@@ -77,7 +77,7 @@ export function LandingSequence({ displayedUams, landedUams }: LandingSequencePr
                     {/* 시간 레이블 */}
                     <span
                       className={`text-[10px] w-8 text-right flex-shrink-0 font-mono pt-2 ${
-                        entry.isWaiting ? 'text-gray-900 font-bold' : 'text-gray-400 font-medium'
+                        entry.isWaiting ? 'text-gray-900 dark:text-zinc-100 font-bold' : 'text-gray-400 dark:text-zinc-400 font-medium'
                       }`}
                     >
                       {entry.isWaiting ? '~1m' : `+${entry.etaMin}m`}
@@ -100,15 +100,15 @@ export function LandingSequence({ displayedUams, landedUams }: LandingSequencePr
                     <div
                       className={`flex-1 rounded-lg border transition-all duration-200 p-2.5 shadow-2xs ${
                         entry.isUamEmergency
-                          ? 'border-status-emergency bg-status-emergency-bg'
+                          ? 'border-status-emergency bg-status-emergency-bg dark:bg-status-emergency-dark-bg'
                           : entry.isWaiting
-                            ? 'border-status-waiting bg-status-waiting-bg'
+                            ? 'border-status-waiting bg-status-waiting-bg dark:bg-status-waiting-dark-bg'
                             : 'border-main-primary bg-main-primary-bg/30'
                       }`}
                     >
                       {/* 최상단: 순위 + ID + 상태 */}
                       <div className="flex items-center gap-1.5 mb-1.5">
-                        <span className="text-[10px] font-bold text-gray-400 font-mono">#{entry.rank}</span>
+                        <span className="text-[10px] font-bold text-gray-400 dark:text-zinc-400 font-mono">#{entry.rank}</span>
                         <span
                           className={`font-mono text-xs font-bold flex-1 truncate ${
                             entry.isUamEmergency
@@ -132,13 +132,13 @@ export function LandingSequence({ displayedUams, landedUams }: LandingSequencePr
 
                       {/* 미니 슬라이더 타임라인 */}
                       <div className="my-2">
-                        <div className="flex items-center justify-between text-[9px] text-gray-400 font-mono mb-1">
+                        <div className="flex items-center justify-between text-[9px] text-gray-400 dark:text-zinc-400 font-mono mb-1">
                           <span>DEP</span>
-                          <span className="text-gray-600 font-semibold">{entry.arrivalTime} · ARR</span>
+                          <span className="text-gray-600 dark:text-zinc-200 font-semibold">{entry.arrivalTime} · ARR</span>
                         </div>
                         <div className="relative w-full h-4 flex items-center">
                           {/* 배경 트랙 선 */}
-                          <div className="absolute left-0 right-0 h-1 bg-slate-200/60 rounded-full" />
+                          <div className="absolute left-0 right-0 h-1 bg-slate-200/60 dark:bg-zinc-600/60 rounded-full" />
 
                           {/* 채워진 트랙 선 */}
                           <div
@@ -159,7 +159,7 @@ export function LandingSequence({ displayedUams, landedUams }: LandingSequencePr
                           />
 
                           {/* 버티포트 도착지점 */}
-                          <div className="absolute right-0 w-1.5 h-1.5 rounded-full bg-slate-300" />
+                          <div className="absolute right-0 w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-zinc-500" />
 
                           {/* 비행기 아이콘 */}
                           <div
@@ -182,7 +182,7 @@ export function LandingSequence({ displayedUams, landedUams }: LandingSequencePr
                           </div>
                         </div>
                         {!entry.isWaiting && (
-                          <div className="text-[9px] text-gray-400 font-mono mt-1 text-center">
+                          <div className="text-[9px] text-gray-400 dark:text-zinc-400 font-mono mt-1 text-center">
                             남은 거리: {entry.distKm.toFixed(1)} km
                           </div>
                         )}

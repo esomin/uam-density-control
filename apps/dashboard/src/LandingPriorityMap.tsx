@@ -174,12 +174,12 @@ export function LandingPriorityMap({ uams }: LandingPriorityMapProps) {
       </Map>
 
       {/* HUD 오버레이 */}
-      <div className="absolute top-3 left-3 z-10 bg-white/90 border border-gray-200 shadow-md backdrop-blur-md px-3 py-2 rounded-lg text-[10px] font-mono pointer-events-none flex flex-col gap-0.5">
+      <div className="absolute top-3 left-3 z-10 bg-white/90 dark:bg-zinc-800/90 border border-gray-200 dark:border-zinc-700 shadow-md backdrop-blur-md px-3 py-2 rounded-lg text-[10px] font-mono pointer-events-none flex flex-col gap-0.5">
         <span className="text-main-primary-text font-bold tracking-wider">PRIORITY QUEUE MAP</span>
-        <span className="text-gray-600">
+        <span className="text-gray-600 dark:text-zinc-300">
           추적{' '}
           <span className="text-main-primary-text font-bold">{uams.length}</span>대 ·{' '}
-          <span className="text-amber-700 font-bold">
+          <span className="text-amber-700 dark:text-amber-400 font-bold">
             {uams.filter((u) => u.waitingForLanding).length}
           </span>
           대 착륙 대기
@@ -187,7 +187,7 @@ export function LandingPriorityMap({ uams }: LandingPriorityMapProps) {
       </div>
 
       {/* 범례 */}
-      <div className="absolute bottom-3 left-3 z-10 bg-white/90 border border-gray-200 shadow-md backdrop-blur-md px-3 py-2 rounded-lg text-[10px] font-mono pointer-events-none flex flex-col gap-1.5">
+      <div className="absolute bottom-3 left-3 z-10 bg-white/90 dark:bg-zinc-800/90 border border-gray-200 dark:border-zinc-700 shadow-md backdrop-blur-md px-3 py-2 rounded-lg text-[10px] font-mono pointer-events-none flex flex-col gap-1.5">
         <LegendItem color="#e11d48" label="비상" />
         <LegendItem color="#d97706" label="착륙 대기" />
         <LegendItem color="var(--color-main-primary)" label="우선순위 TOP 3" />
@@ -199,17 +199,17 @@ export function LandingPriorityMap({ uams }: LandingPriorityMapProps) {
 
 function LegendItem({ color, label }: { color: string; label: string }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+    <div className="flex items-center gap-2">
       <div
         style={{
           width: 8,
           height: 8,
-          clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)',
           backgroundColor: color,
+          clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)',
           flexShrink: 0,
         }}
       />
-      <span style={{ color: '#334155', fontWeight: 600 }}>{label}</span>
+      <span className="text-gray-700 dark:text-zinc-200">{label}</span>
     </div>
   );
 }

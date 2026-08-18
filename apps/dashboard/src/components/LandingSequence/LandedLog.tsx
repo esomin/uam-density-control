@@ -26,8 +26,8 @@ export function LandedLog({ landedUams }: LandedLogProps) {
             key={`${record.uamId}-${record.landedAt}`}
             className={`flex items-center gap-2 px-2.5 py-1.5 rounded-md border text-[11px] transition-all duration-300 ${
               idx === 0
-                ? 'border-status-landed-border bg-status-landed-bg text-status-landed-text shadow-2xs font-semibold'
-                : 'border-gray-100 bg-gray-50 text-gray-600'
+                ? 'border-status-landed-border bg-status-landed-bg dark:bg-status-landed-dark-bg text-status-landed-text shadow-2xs font-semibold'
+                : 'border-gray-100 dark:border-zinc-600 bg-gray-50 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300'
             }`}
           >
             <CheckCircle2 size={12} className={idx === 0 ? 'text-status-landed' : 'text-gray-400'} />

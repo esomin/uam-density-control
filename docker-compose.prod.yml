@@ -1,0 +1,86 @@
+services:
+  # L2: MQTT Broker
+  mosquitto:
+    image: eclipse-mosquitto:2.0
+    container_name: uam-mqtt-broker
+    restart: always
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+    networks:
+      - uam-net
+
+  # L3: In-Memory DB (Redis)
+  redis:
+    image: redis:7-alpine
+    container_name: uam-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    networks:
+      - uam-net
+
+  # L3: Scheduler Engine
+  scheduler:
+    build:
+      context: .
+      dockerfile: apps/scheduler/Dockerfile
+    container_name: uam-scheduler
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - PORT=3002
+      - MQTT_URL=mqtt://mosquitto:1883
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    ports:
+      - "3002:3002"
+    depends_on:
+      - mosquitto
+      - redis
+    networks:
+      - uam-net
+
+  # L1: Simulator
+  simulator:
+    build:
+      context: .
+      dockerfile: apps/simulator/Dockerfile
+    container_name: uam-simulator
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - MQTT_URL=mqtt://mosquitto:1883
+    ports:
+      - "3001:3001"
+    depends_on:
+      - mosquitto
+    networks:
+      - uam-net
+
+  # L4: Dashboard (Nginx 정적 서빙 & WebSocket 프록시)
+  dashboard:
+    build:
+      context: .
+      dockerfile: apps/dashboard/Dockerfile
+    container_name: uam-dashboard
+    restart: always
+    ports:
+      - "8080:80"
+    depends_on:
+      - scheduler
+    networks:
+      - uam-net
+
+volumes:
+  redis-data:
+
+networks:
+  uam-net:
+    driver: bridge

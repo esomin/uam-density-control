@@ -13,7 +13,10 @@ interface LandedRecord {
 @WebSocketGateway({ cors: { origin: '*' } })
 export class EventsGateway implements OnModuleInit, OnGatewayConnection {
   @WebSocketServer() server: Server;
-  private redis = new Redis();
+  private redis = new Redis({
+    host: process.env.REDIS_HOST ?? 'localhost',
+    port: Number(process.env.REDIS_PORT ?? 6379),
+  });
 
   /** 착륙 완료된 기체 누적 목록 (서버 재시작 전까지 유지) */
   private landedUams: LandedRecord[] = [];

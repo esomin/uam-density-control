@@ -4,7 +4,10 @@ import { Redis } from 'ioredis';
 
 @Injectable()
 export class AppService {
-  private redis = new Redis({ host: 'localhost', port: 6379 });
+  private redis = new Redis({
+    host: process.env.REDIS_HOST ?? 'localhost',
+    port: Number(process.env.REDIS_PORT ?? 6379),
+  });
 
   constructor(@Inject('MQTT_SERVICE') private mqttClient: ClientProxy) { }
 

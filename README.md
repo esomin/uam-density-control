@@ -75,6 +75,8 @@ uam-density-control/
 - [gateway/README.md](apps/gateway/README.md)
 - [scheduler/README.md](apps/scheduler/README.md)
 - [dashboard/README.md](apps/dashboard/README.md)
+- [DEPLOYMENT.md](DEPLOYMENT.md) (시스템 배포 가이드)
+
 
 ---
 

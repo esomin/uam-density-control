@@ -7,7 +7,12 @@ export interface LandedRecord {
   landedAt: string;
 }
 
-const socket = io('http://localhost:3002');
+const socket = io(
+  import.meta.env.VITE_WS_URL ||
+    (typeof window !== 'undefined' && window.location.port === '5173'
+      ? 'http://localhost:3002'
+      : undefined)
+);
 
 export function useUamData() {
   /** [Stream B] Redis top-10 → 착륙 승인 큐 렌더링용 */

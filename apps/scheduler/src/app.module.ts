@@ -11,7 +11,7 @@ import { EventsGateway } from './events.gateway';
         name: 'MQTT_SERVICE',
         transport: Transport.MQTT,
         options: {
-          url: 'mqtt://localhost:1883',
+          url: process.env.MQTT_URL ?? 'mqtt://localhost:1883',
         },
       },
     ]),

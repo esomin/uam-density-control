@@ -10,7 +10,7 @@ import { AppService } from './app.service';
         name: 'UAM_SERVICE', // 이 이름으로 Service에서 주입받아 사용합니다.
         transport: Transport.MQTT,
         options: {
-          url: 'mqtt://localhost:1883',
+          url: process.env.MQTT_URL ?? 'mqtt://localhost:1883',
         },
       },
     ]),

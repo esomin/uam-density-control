@@ -11,18 +11,25 @@
   <link href='https://unpkg.com/maplibre-gl@<YOUR_MAPLIBRE_VERSION>/dist/maplibre-gl.css' rel='stylesheet' />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>UAM Density Control</title>
-  <script>
+  <script type="module">
     (function () {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      function updateTheme(e) {
-        if (e.matches) {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
+      const themeMode = (import.meta.env.VITE_THEME_MODE || 'auto').toLowerCase();
+      if (themeMode === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else if (themeMode === 'light') {
+        document.documentElement.classList.remove('dark');
+      } else {
+        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        function updateTheme(e) {
+          if (e.matches) {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
         }
+        updateTheme(mediaQuery);
+        mediaQuery.addEventListener('change', updateTheme);
       }
-      updateTheme(mediaQuery);
-      mediaQuery.addEventListener('change', updateTheme);
     })();
   </script>
 </head>

@@ -68,7 +68,8 @@ uam-density-control/
 │   └── config/         # ESLint, Prettier, TSConfig 공통 설정
 ├── turbo.json          # Turborepo 빌드 파이프라인 설정
 ├── pnpm-workspace.yaml # pnpm 워크스페이스 정의
-└── docker-compose.yml  # 전체 인프라(Mosquitto, Redis, DB) 실행
+├── compose.yml         # 전체 풀스택 컨테이너 배포 설정
+└── compose-local.yml   # 로컬 개발용 인프라(Mosquitto, Redis) 설정
 ```
 
 - [simulator/README.md](apps/simulator/README.md)
@@ -99,7 +100,7 @@ pnpm install
 
 #### 2. 인프라 컨테이너 실행 (Mosquitto MQTT & Redis)
 ```bash
-docker-compose up -d
+docker compose -f compose-local.yml up -d
 ```
 
 #### 3. 애플리케이션 실행 (아래 방식 중 **하나만 선택**하여 실행)

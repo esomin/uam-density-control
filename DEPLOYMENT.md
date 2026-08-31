@@ -36,13 +36,15 @@ GCE 인스턴스 내부에서 Docker 가상 네트워크(`uam-net`)를 통해 5�
 
 ---
 
-## 2. 권장 GCE 인스턴스 사양
+## 2. 권장 GCE 인스턴스 사양 (프로덕션 운영 기준)
 
 * **머신 유형**: **`e2-standard-2`** (2 vCPU, 8GB RAM)  
   *(초기 신규 가입 시 제공되는 **$300 무료 크레딧**으로 90일간 전액 무료 운영 가능)*
 * **운영체제(OS)**: Ubuntu 22.04 LTS x86/64
-* **부팅 디스크**: 50GB Balanced Persistent Disk (`pd-balanced`)
-* **리전/영역**: `asia-northeast3` (서울 리전) / `asia-northeast3-a`
+* **부팅 디스크**: 30GB Balanced Persistent Disk (`pd-balanced`)
+* **리전/영역**: `asia-east1` (대만 리전 - 서울 대비 15~20% 저렴, 낮은 지연시간) / `asia-east1-a`
+
+> 💡 **비용 절감 팁:** 초기 개발/테스트 단계에서 스팟 VM을 사용한 후 운영용으로 전환하려면 [MIGRATION.md](./MIGRATION.md) 문서를 참고하세요.
 
 ---
 
@@ -50,16 +52,16 @@ GCE 인스턴스 내부에서 Docker 가상 네트워크(`uam-net`)를 통해 5�
 
 ### Step 1. GCE 가상머신(VM) 인스턴스 생성
 
-로컬 터미널의 `gcloud CLI` 또는 Google Cloud Console을 통해 VM을 생성합니다.
+로컬 터미널의 `gcloud CLI` 또는 Google Cloud Console을 통해 운영용 표준(Standard) VM을 생성합니다.
 
 ```bash
 gcloud compute instances create uam-control-server \
-  --project="<YOUR_GCP_PROJECT_ID>" \
-  --zone=asia-northeast3-a \
+  --project="<GCP_PROJECT_ID>" \
+  --zone=asia-east1-a \
   --machine-type=e2-standard-2 \
   --image-family=ubuntu-2204-lts \
   --image-project=ubuntu-os-cloud \
-  --boot-disk-size=50GB \
+  --boot-disk-size=30GB \
   --boot-disk-type=pd-balanced \
   --tags=uam-server,http-server,https-server
 ```
@@ -68,17 +70,17 @@ gcloud compute instances create uam-control-server \
 
 ### Step 2. VPC 방화벽 규칙 생성 (포트 개방)
 
-MQTT 기체 통신(1883) 및 웹 관제 대시보드(80, 443) 접근을 허용합니다.  
+MQTT 기체 통신(1883, 8083, 9001) 및 웹 관제 대시보드(80, 443) 접근을 허용합니다.  
 *(⚠️ Redis `6379` 포트는 보안을 위해 외부에 절대 개방하지 않습니다.)*
 
 ```bash
-# 1. UAM 기체 MQTT 텔레메트리 수집 포트(1883) 개방
+# 1. UAM 기체 MQTT 텔레메트리 수집 포트(1883, 8083, 9001) 개방
 gcloud compute firewall-rules create allow-uam-mqtt \
   --direction=INGRESS \
   --priority=1000 \
   --network=default \
   --action=ALLOW \
-  --rules=tcp:1883 \
+  --rules=tcp:1883,tcp:8083,tcp:9001 \
   --target-tags=uam-server \
   --description="Allow MQTT Telemetry Ingress"
 
@@ -100,17 +102,17 @@ gcloud compute firewall-rules create allow-uam-web \
 서버 재부팅 시에도 IP가 변경되지 않도록 고정 IP를 발급하여 VM에 연결합니다.
 
 ```bash
-# 1. 서울 리전에 고정 IP 예약
+# 1. 대만 리전에 고정 IP 예약
 gcloud compute addresses create uam-static-ip \
-  --region=asia-northeast3
+  --region=asia-east1
 
 # 2. 인스턴스에 고정 IP 할당
 gcloud compute instances add-access-config uam-control-server \
-  --zone=asia-northeast3-a \
-  --address=$(gcloud compute addresses describe uam-static-ip --region=asia-northeast3 --format="value(address)")
+  --zone=asia-east1-a \
+  --address=$(gcloud compute addresses describe uam-static-ip --region=asia-east1 --format="value(address)")
 
 # 3. 할당된 외부 IP 확인
-gcloud compute addresses describe uam-static-ip --region=asia-northeast3 --format="value(address)"
+gcloud compute addresses describe uam-static-ip --region=asia-east1 --format="value(address)"
 ```
 
 ---
@@ -121,7 +123,7 @@ gcloud compute addresses describe uam-static-ip --region=asia-northeast3 --forma
 
 ```bash
 # 1. GCE VM 접속
-gcloud compute ssh uam-control-server --zone=asia-northeast3-a
+gcloud compute ssh uam-control-server --zone=asia-east1-a
 
 # 2. 필수 패키지 및 Docker Engine / Docker Compose V2 설치
 sudo apt-get update && sudo apt-get install -y ca-certificates curl gnupg git
@@ -149,11 +151,11 @@ newgrp docker
 
 ```bash
 # 1. 저장소 클론
-git clone <YOUR_GITHUB_REPOSITORY_URL>
+git clone <GITHUB_REPOSITORY_URL>
 cd uam-density-control
 
 # 2. 프로덕션 Docker Compose 실행 (빌드 및 백그라운드 구동)
-docker compose -f docker-compose.prod.yml up -d --build
+docker compose up -d --build
 ```
 
 ---
@@ -162,7 +164,7 @@ docker compose -f docker-compose.prod.yml up -d --build
 
 ```bash
 # 1. 컨테이너 구동 상태 확인 (5개 서비스 모두 Up 상태 확인)
-docker compose -f docker-compose.prod.yml ps
+docker compose ps
 
 # 출력 예시:
 # NAME               IMAGE                              COMMAND                  SERVICE      STATUS
@@ -173,7 +175,7 @@ docker compose -f docker-compose.prod.yml ps
 # uam-simulator      uam-density-control-simulator      "docker-entrypoint.s…"   simulator    Up
 
 # 2. 실시간 로그 스트리밍 확인
-docker compose -f docker-compose.prod.yml logs -f scheduler simulator
+docker compose logs -f scheduler simulator
 ```
 
 #### 브라우저 접속 테스트:
@@ -188,22 +190,22 @@ docker compose -f docker-compose.prod.yml logs -f scheduler simulator
 ```bash
 cd uam-density-control
 git pull origin main
-docker compose -f docker-compose.prod.yml up -d --build
+docker compose up -d --build
 ```
 
 ### 컨테이너 관리 명령어
 ```bash
 # 전체 서비스 중지
-docker compose -f docker-compose.prod.yml stop
+docker compose stop
 
 # 전체 서비스 시작
-docker compose -f docker-compose.prod.yml start
+docker compose start
 
 # 전체 서비스 재시작
-docker compose -f docker-compose.prod.yml restart
+docker compose restart
 
 # 전체 컨테이너 및 네트워크 제거 (볼륨 데이터 유지)
-docker compose -f docker-compose.prod.yml down
+docker compose down
 
 # 실시간 리소스(CPU/RAM) 사용량 모니터링
 docker stats
@@ -222,7 +224,7 @@ docker stats
 2. **인증서 발급 (독립 실행 모드)**:
    ```bash
    # Nginx 컨테이너 임시 중지 후 80 포트로 인증서 발급
-   docker compose -f docker-compose.prod.yml stop dashboard
+   docker compose stop dashboard
    sudo certbot certonly --standalone -d your-domain.com
    ```
 3. **Nginx 설정에 SSL 경로 추가 후 컨테이너 재기동**:

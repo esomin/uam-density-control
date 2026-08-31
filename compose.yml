@@ -72,7 +72,7 @@ services:
     container_name: uam-dashboard
     restart: always
     ports:
-      - "8080:80"
+      - "80:80"
     depends_on:
       - scheduler
     networks:

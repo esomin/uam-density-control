@@ -69,6 +69,8 @@ services:
     build:
       context: .
       dockerfile: apps/dashboard/Dockerfile
+      args:
+        - VITE_MAPTILER_API_KEY=${VITE_MAPTILER_API_KEY}
     container_name: uam-dashboard
     restart: always
     ports:

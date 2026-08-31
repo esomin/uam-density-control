@@ -12,6 +12,9 @@ COPY packages/ ./packages/
 COPY apps/dashboard/ ./apps/dashboard/
 
 # Install dependencies and build Vite app
+ARG VITE_MAPTILER_API_KEY
+ENV VITE_MAPTILER_API_KEY=$VITE_MAPTILER_API_KEY
+
 RUN pnpm install --no-frozen-lockfile
 RUN pnpm --filter @uam/dashboard build
 

@@ -31,7 +31,7 @@
 ```bash
 # 1. 개발/테스트용 스팟 VM 인스턴스 생성 (대만 리전)
 gcloud compute instances create uam-control-server \
-  --project="composite-watch-479007-q5" \
+  --project="<GCP_PROJECT_ID>" \
   --zone=asia-east1-a \
   --machine-type=e2-standard-2 \
   --provisioning-model=SPOT \
@@ -114,7 +114,7 @@ gcloud compute instances delete uam-control-server \
 OS나 패키지를 재설치하지 않고, 기존 디스크(`uam-control-server`)를 부팅 디스크로 지정하여 즉시 구동합니다.
 ```bash
 gcloud compute instances create uam-control-server \
-  --project="composite-watch-479007-q5" \
+  --project="<GCP_PROJECT_ID>" \
   --zone=asia-east1-a \
   --machine-type=e2-standard-2 \
   --disk=name=uam-control-server,boot=yes,auto-delete=yes \

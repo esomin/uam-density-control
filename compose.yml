@@ -17,8 +17,6 @@ services:
     image: redis:7-alpine
     container_name: uam-redis
     restart: always
-    ports:
-      - "6379:6379"
     command: redis-server --appendonly yes
     volumes:
       - redis-data:/data
@@ -38,8 +36,6 @@ services:
       - MQTT_URL=mqtt://mosquitto:1883
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-    ports:
-      - "3002:3002"
     depends_on:
       - mosquitto
       - redis
@@ -57,8 +53,6 @@ services:
       - NODE_ENV=production
       - PORT=3001
       - MQTT_URL=mqtt://mosquitto:1883
-    ports:
-      - "3001:3001"
     depends_on:
       - mosquitto
     networks:
@@ -75,7 +69,7 @@ services:
     container_name: uam-dashboard
     restart: always
     ports:
-      - "80:80"
+      - "3001:80"
     depends_on:
       - scheduler
     networks:

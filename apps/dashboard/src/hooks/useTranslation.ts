@@ -27,6 +27,9 @@ export const translations = {
     mapLegendWaiting: '착륙 대기',
     mapLegendTop3: '우선순위 TOP 3',
     mapLegendQueue: '대기열',
+    radarActive: '3D 레이더 관제 활성화',
+    radarTracking: (total: number, max: number) => `추적 ${total} / ${max} UAM`,
+    mapInitializing: '3D 레이더 맵 초기화 중...',
   },
   en: {
     // Header
@@ -52,6 +55,9 @@ export const translations = {
     mapLegendWaiting: 'Waiting for Landing',
     mapLegendTop3: 'Priority TOP 3',
     mapLegendQueue: 'Standby Queue',
+    radarActive: '3D RADAR VIEW ACTIVE',
+    radarTracking: (total: number, max: number) => `TRACKING ${total} / ${max} UAM`,
+    mapInitializing: 'INITIALIZING 3D RADAR MAP...',
   },
 } as const;
 

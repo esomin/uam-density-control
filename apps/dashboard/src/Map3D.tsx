@@ -1,8 +1,10 @@
-import Map, { Marker, NavigationControl, Source } from 'react-map-gl/maplibre';
+import { useEffect, useRef, useState } from 'react';
+import Map, { Marker, NavigationControl, Source, type MapRef } from 'react-map-gl/maplibre';
 
 import 'maplibre-gl/dist/maplibre-gl.css';
 import type { UamVehicleStatus } from '@uam/types';
 import maplibregl from 'maplibre-gl';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const MAPTILER_API_KEY = import.meta.env.VITE_MAPTILER_API_KEY as string;
 const MAP_STYLE = `https://api.maptiler.com/maps/outdoor-v2/style.json?key=${MAPTILER_API_KEY}`;
@@ -21,12 +23,43 @@ const VERTIPORTS = [
 
 interface Map3DProps {
   uams: UamVehicleStatus[];
+  isActive?: boolean;
 }
 
-export function Map3D({ uams }: Map3DProps) {
+export function Map3D({ uams, isActive = true }: Map3DProps) {
+  const { t } = useTranslation();
+  const mapRef = useRef<MapRef | null>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // 탭이 활성화될 때 맵 뷰포트 크기 강제 재계산
+  useEffect(() => {
+    if (isActive && mapRef.current) {
+      const map = mapRef.current.getMap();
+      if (map) {
+        requestAnimationFrame(() => {
+          map.resize();
+        });
+      }
+    }
+  }, [isActive]);
+
   return (
     <div className="w-full h-full min-h-[350px] relative bg-slate-950">
+      {/* ── 맵 초기 로딩 오버레이 (반쪽 화면 깜빡임 완벽 차단) ── */}
+      {!isLoaded && (
+        <div className="absolute inset-0 z-20 bg-slate-950 flex flex-col items-center justify-center gap-3">
+          <div className="relative flex items-center justify-center">
+            <div className="w-10 h-10 border-2 border-teal-500/20 rounded-full animate-ping" />
+            <div className="absolute w-6 h-6 border-2 border-teal-400 border-t-transparent rounded-full animate-spin" />
+          </div>
+          <span className="text-[11px] font-mono text-teal-400 font-semibold tracking-wider animate-pulse">
+            {t.mapInitializing}
+          </span>
+        </div>
+      )}
+
       <Map
+        ref={mapRef}
         mapLib={maplibregl}
         initialViewState={{
           longitude: 127.100,
@@ -38,6 +71,10 @@ export function Map3D({ uams }: Map3DProps) {
         maxPitch={85}
         mapStyle={MAP_STYLE}
         terrain={TERRAIN_SPEC}
+        onLoad={() => {
+          setIsLoaded(true);
+          mapRef.current?.getMap()?.resize();
+        }}
         onError={(e) => console.error('Map initialization error:', e)}
       >
         <Source
@@ -124,9 +161,9 @@ export function Map3D({ uams }: Map3DProps) {
       </Map>
 
       <div className="absolute top-4 left-4 z-10 bg-white/90 dark:bg-zinc-800/90 border border-gray-200 dark:border-zinc-700 shadow-md backdrop-blur-md px-3 py-2 rounded-lg text-xs font-mono pointer-events-none flex flex-col gap-0.5">
-        <span className="text-teal-700 dark:text-teal-400 font-bold">3D RADAR VIEW ACTIVE</span>
-        <span className="text-gray-600 dark:text-zinc-300">
-          TRACKING <span className="text-teal-700 dark:text-teal-400 font-bold">{uams.length}</span> / 50 UAM
+        <span className="text-teal-700 dark:text-teal-400 font-bold">{t.radarActive}</span>
+        <span className="text-gray-600 dark:text-zinc-300 font-mono">
+          {t.radarTracking(uams.length, 50)}
         </span>
       </div>
     </div>

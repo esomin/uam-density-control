@@ -59,47 +59,43 @@ function App() {
       {/* ── 탭 콘텐츠 영역 ── */}
       <div className="flex flex-1 overflow-hidden p-4 gap-3.5 flex-col">
         {/* ── 탭 1: 착륙 우선순위 기체 목록 + 맵 + 타임라인 (3단 패널) ── */}
-        {activeTab === 'list' && (
-          <>
-            {/* 상단 Live Pipeline Stream Bar (헤더 우측 버튼으로 토글됨) */}
-            {isStreamTickerOpen && (
-              <PipelineStreamTicker
-                mapUams={mapUams}
-                displayedUams={displayedUams}
-                lastApprovedId={lastApprovedId}
-              />
-            )}
+        <div className={`flex flex-1 overflow-hidden flex-col gap-3.5 ${activeTab === 'list' ? 'flex' : 'hidden'}`}>
+          {/* 상단 Live Pipeline Stream Bar (헤더 우측 버튼으로 토글됨) */}
+          {isStreamTickerOpen && (
+            <PipelineStreamTicker
+              mapUams={mapUams}
+              displayedUams={displayedUams}
+              lastApprovedId={lastApprovedId}
+            />
+          )}
 
-            <div className="flex flex-1 overflow-hidden gap-3.5" style={{ minWidth: 0 }}>
-              {/* 좌측 패널: 착륙 우선순위 기체 목록 (Priority Zone + Standby Queue) */}
-              <LandingPriorityQueue
-                displayedUams={displayedUams}
-                isQueueLocked={isQueueLocked}
-                pendingChangeCount={pendingChangeCount}
-                onToggleLock={handleToggleLock}
-                onApprove={handleApproveClick}
-              />
+          <div className="flex flex-1 overflow-hidden gap-3.5" style={{ minWidth: 0 }}>
+            {/* 좌측 패널: 착륙 우선순위 기체 목록 (Priority Zone + Standby Queue) */}
+            <LandingPriorityQueue
+              displayedUams={displayedUams}
+              isQueueLocked={isQueueLocked}
+              pendingChangeCount={pendingChangeCount}
+              onToggleLock={handleToggleLock}
+              onApprove={handleApproveClick}
+            />
 
-              {/* 가운데 패널: 착륙 우선순위 기체 맵 */}
-              <div className="flex-[2.3] min-w-0 bg-white dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 rounded-xl shadow-xs overflow-hidden relative flex flex-col">
-                <LandingPriorityMap uams={displayedUams} />
-              </div>
-
-              {/* 우측 패널: ETA 착륙 순서 타임라인 & 착륙 완료 로그 */}
-              <LandingSequence
-                displayedUams={displayedUams}
-                landedUams={landedUams}
-              />
+            {/* 가운데 패널: 착륙 우선순위 기체 맵 */}
+            <div className="flex-[2.3] min-w-0 bg-white dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 rounded-xl shadow-xs overflow-hidden relative flex flex-col">
+              <LandingPriorityMap uams={displayedUams} />
             </div>
-          </>
-        )}
 
-        {/* ── 탭 2: 지도 전체 3D 뷰 ── */}
-        {activeTab === 'map' && (
-          <div className="flex-1 bg-white dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 rounded-xl shadow-xs overflow-hidden relative">
-            <Map3D uams={mapUams} />
+            {/* 우측 패널: ETA 착륙 순서 타임라인 & 착륙 완료 로그 */}
+            <LandingSequence
+              displayedUams={displayedUams}
+              landedUams={landedUams}
+            />
           </div>
-        )}
+        </div>
+
+        {/* ── 탭 2: 지도 전체 3D 뷰 (DOM 유지로 탭 전환 시 깜빡임/반쪽 현상 방지) ── */}
+        <div className={`flex-1 bg-white dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 rounded-xl shadow-xs overflow-hidden relative ${activeTab === 'map' ? 'block' : 'hidden'}`}>
+          <Map3D uams={mapUams} isActive={activeTab === 'map'} />
+        </div>
       </div>
 
       {/* ── 착륙 승인 확인 모달 ── */}

@@ -2,6 +2,7 @@ import Map, { Marker, NavigationControl, Source } from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import type { UamVehicleStatus } from '@uam/types';
 import maplibregl from 'maplibre-gl';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const MAPTILER_API_KEY = import.meta.env.VITE_MAPTILER_API_KEY as string;
 const MAP_STYLE = `https://api.maptiler.com/maps/outdoor-v2/style.json?key=${MAPTILER_API_KEY}`;
@@ -12,13 +13,14 @@ const TERRAIN_SPEC = {
 };
 
 // 잠실 버티포트만 표시
-const JAMSIL_VERTIPORT = { name: '잠실 버티포트', lat: 37.513, lng: 127.108 };
+const JAMSIL_VERTIPORT = { lat: 37.513, lng: 127.108 };
 
 interface LandingPriorityMapProps {
   uams: UamVehicleStatus[];
 }
 
 export function LandingPriorityMap({ uams }: LandingPriorityMapProps) {
+  const { t } = useTranslation();
   return (
     <div className="w-full h-full min-h-[300px] relative bg-slate-950">
       <Map
@@ -53,7 +55,7 @@ export function LandingPriorityMap({ uams }: LandingPriorityMapProps) {
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             {/* 착륙 패드 아이콘 */}
             <div
-              title={JAMSIL_VERTIPORT.name}
+              title={t.jamsilVertiport}
               style={{
                 width: 28,
                 height: 28,
@@ -84,7 +86,7 @@ export function LandingPriorityMap({ uams }: LandingPriorityMapProps) {
                 border: '1px solid rgba(249,115,22,0.4)',
               }}
             >
-              ★ 잠실 VP
+              ★ {t.jamsilVertiport}
             </div>
           </div>
         </Marker>
@@ -176,22 +178,17 @@ export function LandingPriorityMap({ uams }: LandingPriorityMapProps) {
       {/* HUD 오버레이 */}
       <div className="absolute top-3 left-3 z-10 bg-white/90 dark:bg-zinc-800/90 border border-gray-200 dark:border-zinc-700 shadow-md backdrop-blur-md px-3 py-2 rounded-lg text-[10px] font-mono pointer-events-none flex flex-col gap-0.5">
         <span className="text-main-primary-text font-bold tracking-wider">PRIORITY QUEUE MAP</span>
-        <span className="text-gray-600 dark:text-zinc-300">
-          추적{' '}
-          <span className="text-main-primary-text font-bold">{uams.length}</span>대 ·{' '}
-          <span className="text-amber-700 dark:text-amber-400 font-bold">
-            {uams.filter((u) => u.waitingForLanding).length}
-          </span>
-          대 착륙 대기
+        <span className="text-gray-600 dark:text-zinc-300 font-mono">
+          {t.mapHudTracking(uams.length, uams.filter((u) => u.waitingForLanding).length)}
         </span>
       </div>
 
       {/* 범례 */}
       <div className="absolute bottom-3 left-3 z-10 bg-white/90 dark:bg-zinc-800/90 border border-gray-200 dark:border-zinc-700 shadow-md backdrop-blur-md px-3 py-2 rounded-lg text-[10px] font-mono pointer-events-none flex flex-col gap-1.5">
-        <LegendItem color="#e11d48" label="비상" />
-        <LegendItem color="#d97706" label="착륙 대기" />
-        <LegendItem color="var(--color-main-primary)" label="우선순위 TOP 3" />
-        <LegendItem color="#64748b" label="대기열" />
+        <LegendItem color="#e11d48" label={t.mapLegendEmergency} />
+        <LegendItem color="#d97706" label={t.mapLegendWaiting} />
+        <LegendItem color="var(--color-main-primary)" label={t.mapLegendTop3} />
+        <LegendItem color="#64748b" label={t.mapLegendQueue} />
       </div>
     </div>
   );
@@ -209,7 +206,7 @@ function LegendItem({ color, label }: { color: string; label: string }) {
           flexShrink: 0,
         }}
       />
-      <span className="text-gray-700 dark:text-zinc-200">{label}</span>
+      <span className="text-gray-700 dark:text-zinc-200 font-mono">{label}</span>
     </div>
   );
 }

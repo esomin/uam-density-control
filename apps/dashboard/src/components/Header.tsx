@@ -1,4 +1,5 @@
 import { AlignJustify, Map as MapIcon, PlaneLanding, Activity, ChevronDown, ChevronUp } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export type Tab = 'list' | 'map';
 
@@ -21,6 +22,7 @@ export function Header({
   isStreamTickerOpen = true,
   onToggleStreamTicker,
 }: HeaderProps) {
+  const { t } = useTranslation();
   const hasLanded = landedCount > 0;
 
   return (
@@ -33,7 +35,7 @@ export function Header({
         {hasLanded && (
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border-2 border-white/30 dark:border-teal-400/40 text-white dark:text-teal-400 shadow-2xs">
             <PlaneLanding size={14} className="text-white dark:text-teal-400" />
-            <span>착륙 완료 {landedCount}대</span>
+            <span>{t.landedCompleted(landedCount)}</span>
           </div>
         )}
       </div>
@@ -50,7 +52,7 @@ export function Header({
             }`}
           >
             <AlignJustify size={16} />
-            <span>착륙 우선순위 기체</span>
+            <span>{t.landingPriorityVehicles}</span>
             {displayedCount > 0 && (
               <span
                 className={`ml-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
@@ -70,7 +72,7 @@ export function Header({
                     : 'bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-400'
                 }`}
               >
-                착륙 {landedCount}
+                {t.landingWaiting} {landedCount}
               </span>
             )}
           </button>
@@ -84,7 +86,7 @@ export function Header({
             }`}
           >
             <MapIcon size={16} />
-            <span>비행 중 기체</span>
+            <span>{t.inFlightVehicles}</span>
             {mapCount > 0 && (
               <span
                 className={`ml-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
@@ -108,13 +110,13 @@ export function Header({
                 ? 'bg-main-primary-bg text-main-primary-text border-main-primary/30 dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-500/40'
                 : 'bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-200 border-gray-300 dark:border-zinc-500 hover:border-main-primary dark:hover:border-sky-400 hover:text-main-primary dark:hover:text-sky-300 hover:bg-slate-50 dark:hover:bg-zinc-750'
             }`}
-            title={isStreamTickerOpen ? '데이터 파이프라인 바 접기' : '데이터 파이프라인 바 펼치기'}
+            title={isStreamTickerOpen ? t.dataPipelineFold : t.dataPipelineUnfold}
           >
             <Activity
               size={13}
               className={isStreamTickerOpen ? 'text-main-primary dark:text-sky-400 animate-pulse' : 'text-main-primary dark:text-sky-400'}
             />
-            <span>데이터 파이프라인</span>
+            <span>{t.dataPipeline}</span>
             {isStreamTickerOpen ? (
               <ChevronUp size={13} className="text-main-primary dark:text-sky-400 ml-0.5" />
             ) : (

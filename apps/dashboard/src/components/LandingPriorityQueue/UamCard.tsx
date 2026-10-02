@@ -83,13 +83,7 @@ export function UamCard({ uam, index, isFirstEmergency, onApprove }: UamCardProp
       </div>
 
       <button
-        className={`w-full h-7 text-[11px] font-semibold mt-1 text-white border-0 shadow-2xs transition-colors rounded flex items-center justify-center cursor-pointer shrink-0 tracking-wide uppercase font-mono ${
-          uamEmergency
-            ? 'bg-status-emergency-action hover:bg-status-emergency-action-hover'
-            : uam.waitingForLanding
-              ? 'bg-status-waiting-action hover:bg-status-waiting-action-hover'
-              : 'bg-slate-700 hover:bg-slate-800 dark:bg-slate-900 dark:hover:bg-slate-950 dark:border dark:border-slate-800'
-        }`}
+        className="w-full h-7 text-[11px] font-semibold mt-1 text-white border-0 shadow-2xs transition-colors rounded flex items-center justify-center cursor-pointer shrink-0 tracking-wide uppercase font-mono bg-slate-700 hover:bg-slate-800 dark:bg-slate-900 dark:hover:bg-slate-950 dark:border dark:border-slate-800"
         onClick={() => onApprove(uam)}
       >
         Approve

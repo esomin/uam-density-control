@@ -108,7 +108,7 @@ export function ApprovalModal({ pendingApproval, onConfirm, onCancel }: Approval
             className={`flex-1 font-bold text-[11px] h-7.5 text-white shadow-2xs rounded flex items-center justify-center cursor-pointer transition-colors font-mono uppercase ${
               emergency
                 ? 'bg-status-emergency-action hover:bg-status-emergency-action-hover'
-                : 'bg-main-primary hover:opacity-90'
+                : 'bg-slate-700 hover:bg-slate-800 dark:bg-slate-900 dark:hover:bg-slate-950 dark:border dark:border-slate-800'
             }`}
             onClick={onConfirm}
           >

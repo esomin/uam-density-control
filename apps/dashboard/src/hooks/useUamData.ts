@@ -9,8 +9,8 @@ export interface LandedRecord {
 
 const socket = io(
   import.meta.env.VITE_WS_URL ||
-    (typeof window !== 'undefined' && window.location.port === '5173'
-      ? 'http://localhost:3002'
+    (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+      ? `http://${window.location.hostname}:3002`
       : undefined)
 );
 

@@ -23,30 +23,30 @@ export function LandingPriorityQueue({
   const standbyQueueUams = displayedUams.slice(3);
 
   return (
-    <div className="flex flex-col flex-[2.5] min-w-0 bg-white dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 rounded-xl p-5 shadow-xs overflow-y-auto custom-scrollbar">
-      {/* 헤더: 타이틀 및 실시간/잠금 토글 */}
-      <div className="flex items-center justify-between mb-5 pb-3 border-b border-gray-100 dark:border-zinc-600">
+    <div className="flex flex-col flex-[2.5] min-w-0 bg-white dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 rounded-xl p-4 shadow-xs overflow-y-auto custom-scrollbar">
+      {/* Header: Title and RealTime/Lock Toggle */}
+      <div className="flex items-center justify-between mb-4 pb-2.5 border-b border-gray-100 dark:border-zinc-600">
         <div className="flex items-center gap-2">
-          <h2 className="text-base font-bold text-gray-800 dark:text-zinc-100 flex items-center gap-2 font-mono uppercase tracking-wider">
-            <AlignJustify size={18} className="text-main-primary-text" />
+          <h2 className="text-sm font-bold text-gray-800 dark:text-zinc-100 flex items-center gap-1.5 font-mono uppercase tracking-wider">
+            <AlignJustify size={16} className="text-main-primary-text" />
             LANDING PRIORITY ({displayedUams.length} UAMs)
           </h2>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           {isQueueLocked && pendingChangeCount > 0 && (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-main-primary-bg border border-main-primary text-main-primary-text animate-pulse">
-              백그라운드 {pendingChangeCount}대 변경 중
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-main-primary-bg border border-main-primary text-main-primary-text animate-pulse">
+              {pendingChangeCount} Pending in Bg
             </span>
           )}
 
-          <label className="flex items-center gap-2 cursor-pointer select-none">
+          <label className="flex items-center gap-1.5 cursor-pointer select-none">
             <span
-              className={`flex items-center gap-1 text-xs font-medium transition-colors duration-200 ${
+              className={`flex items-center gap-1 text-[11px] font-medium transition-colors duration-200 ${
                 isQueueLocked ? 'text-main-primary-text font-semibold' : 'text-gray-500'
               }`}
             >
-              {isQueueLocked ? <Lock size={12} className="text-main-primary" /> : <Unlock size={12} className="text-gray-400" />}
+              {isQueueLocked ? <Lock size={11} className="text-main-primary" /> : <Unlock size={11} className="text-gray-400" />}
               {isQueueLocked ? 'Lock' : 'RealTime'}
             </span>
             <div className="relative inline-flex items-center cursor-pointer">
@@ -56,22 +56,22 @@ export function LandingPriorityQueue({
                 checked={isQueueLocked}
                 onChange={(e) => onToggleLock(e.target.checked)}
               />
-              <div className="w-8 h-4 bg-gray-300 rounded-full peer peer-checked:bg-main-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-4"></div>
+              <div className="w-7 h-3.5 bg-gray-300 rounded-full peer peer-checked:bg-main-primary after:content-[''] after:absolute after:top-[1.5px] after:left-[1.5px] after:bg-white after:rounded-full after:h-2.5 after:w-2.5 after:transition-all peer-checked:after:translate-x-3.5"></div>
             </div>
           </label>
         </div>
       </div>
 
-      {/* ── Zone A: 상위 3대 — Priority Zone ── */}
+      {/* ── Zone A: Top 3 — Priority Zone ── */}
       {priorityZoneUams.length > 0 && (
-        <div className="mb-6">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-[11px] font-bold tracking-wider text-main-primary-text uppercase font-mono">
+        <div className="mb-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-[10px] font-bold tracking-wider text-main-primary-text uppercase font-mono">
               Priority Zone
             </span>
             <div className="flex-1 h-px bg-main-primary-bg" />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 items-stretch">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5 items-stretch">
             {priorityZoneUams.map((uam, index) => (
               <UamCard
                 key={uam.uamId}
@@ -85,16 +85,16 @@ export function LandingPriorityQueue({
         </div>
       )}
 
-      {/* ── Zone B: 4~10위 — Standby Queue ── */}
+      {/* ── Zone B: Rank 4~10 — Standby Queue ── */}
       {standbyQueueUams.length > 0 && (
         <div>
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-[11px] font-bold tracking-wider text-gray-500 uppercase font-mono">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-[10px] font-bold tracking-wider text-gray-500 uppercase font-mono">
               Standby Queue
             </span>
-            <div className="flex-1 h-px bg-gray-200" />
+            <div className="flex-1 h-px bg-gray-200 dark:bg-zinc-600" />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 items-stretch">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5 items-stretch">
             {standbyQueueUams.map((uam, i) => {
               const index = i + 3;
               return (

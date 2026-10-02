@@ -57,7 +57,7 @@ function App() {
       />
 
       {/* ── 탭 콘텐츠 영역 ── */}
-      <div className="flex flex-1 overflow-hidden p-6 gap-6 flex-col">
+      <div className="flex flex-1 overflow-hidden p-4 gap-3.5 flex-col">
         {/* ── 탭 1: 착륙 우선순위 기체 목록 + 맵 + 타임라인 (3단 패널) ── */}
         {activeTab === 'list' && (
           <>
@@ -70,7 +70,7 @@ function App() {
               />
             )}
 
-            <div className="flex flex-1 overflow-hidden gap-6" style={{ minWidth: 0 }}>
+            <div className="flex flex-1 overflow-hidden gap-3.5" style={{ minWidth: 0 }}>
               {/* 좌측 패널: 착륙 우선순위 기체 목록 (Priority Zone + Standby Queue) */}
               <LandingPriorityQueue
                 displayedUams={displayedUams}
@@ -81,7 +81,7 @@ function App() {
               />
 
               {/* 가운데 패널: 착륙 우선순위 기체 맵 */}
-              <div className="flex-[2.5] min-w-0 bg-white dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 rounded-xl shadow-xs overflow-hidden relative flex flex-col">
+              <div className="flex-[2.3] min-w-0 bg-white dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 rounded-xl shadow-xs overflow-hidden relative flex flex-col">
                 <LandingPriorityMap uams={displayedUams} />
               </div>
 

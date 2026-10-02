@@ -16,6 +16,7 @@ const badgeVariants = cva(
         slate: 'bg-slate-100 border-slate-200 text-slate-700',
       },
       size: {
+        xs: 'text-[9px] px-1 py-0.2 leading-tight',
         sm: 'text-[11px] px-1.5 py-0.5',
         md: 'text-xs px-2 py-0.5',
         lg: 'text-xs px-2.5 py-1',

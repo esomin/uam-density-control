@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { UamVehicleStatus } from '@uam/types';
 import { Activity, Cpu, Database, Radio, Wifi, CheckCircle2 } from 'lucide-react';
 

@@ -39,11 +39,10 @@ export function PipelineStreamTicker({
   const [activeFlashNode, setActiveFlashNode] = useState<string | null>(null);
   const [approvedBadge, setApprovedBadge] = useState<string | null>(null);
 
-  // ── [최적화 1] 탭 전환 감지: 백그라운드 복귀 시 누적된 애니메이션 큐 즉시 정리 ──
+  // ── [최적화 1] 탭 전환 감지 ──
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        // 복귀 시 밀려있던 빔들 초기화하여 렉/늘어짐 방지
         streaksRef.current = [];
         lastFpsTimeRef.current = performance.now();
         frameCountRef.current = 0;
@@ -56,7 +55,6 @@ export function PipelineStreamTicker({
 
   // 1. 실제 mapUams 수신 -> L1에서 L3까지 언더라인 레이저 빔 발사
   useEffect(() => {
-    // 탭이 백그라운드일 때는 빔 누적 스킵
     if (document.hidden) return;
 
     if (mapUams.length > 0 && containerRef.current) {
@@ -64,9 +62,8 @@ export function PipelineStreamTicker({
 
       const w = containerRef.current.clientWidth || 960;
       const l1X = 0;
-      const l3X = (w / 6) * 3; // L3 블록 끝
+      const l3X = (w / 6) * 3;
 
-      // ── [최적화 2] 큐 크기 상한선 (최대 5개 유지) ──
       if (streaksRef.current.length > 5) {
         streaksRef.current = streaksRef.current.slice(-3);
       }
@@ -78,7 +75,7 @@ export function PipelineStreamTicker({
           t: -i * 0.12,
           speed: 0.022 + Math.random() * 0.01,
           length: 45 + Math.random() * 20,
-          color: '#0284c7' // Primary Sky-600
+          color: '#0284c7'
         });
       }
     }
@@ -90,8 +87,8 @@ export function PipelineStreamTicker({
 
     if (displayedUams.length > 0 && containerRef.current) {
       const w = containerRef.current.clientWidth || 960;
-      const l3X = (w / 6) * 2; // L3 블록 시작
-      const l5X = (w / 6) * 5; // L5 블록 끝
+      const l3X = (w / 6) * 2;
+      const l5X = (w / 6) * 5;
 
       if (streaksRef.current.length > 5) {
         streaksRef.current = streaksRef.current.slice(-3);
@@ -103,7 +100,7 @@ export function PipelineStreamTicker({
         t: 0,
         speed: 0.02 + Math.random() * 0.008,
         length: 50 + Math.random() * 25,
-        color: '#0ea5e9' // Primary Sky-500
+        color: '#0ea5e9'
       });
     }
   }, [displayedUams]);
@@ -116,7 +113,6 @@ export function PipelineStreamTicker({
       const l4X = (w / 6) * 4;
       const l1X = 0;
 
-      // 언더라인 역방향 레이저 빔
       streaksRef.current.push({
         startX: l4X,
         endX: l1X,
@@ -127,7 +123,6 @@ export function PipelineStreamTicker({
         isReverse: true
       });
 
-      // 블록 순차 점등 (L4 -> L3 -> L2 -> L1)
       setActiveFlashNode('L4');
       setTimeout(() => setActiveFlashNode('L3'), 160);
       setTimeout(() => setActiveFlashNode('L2'), 320);
@@ -147,7 +142,6 @@ export function PipelineStreamTicker({
     let animId: number;
 
     const render = (timestamp: number) => {
-      // ── (1) 실제 브라우저 FPS 실시간 계산 ──
       frameCountRef.current++;
       const elapsed = timestamp - lastFpsTimeRef.current;
       if (elapsed >= 500) {
@@ -157,7 +151,6 @@ export function PipelineStreamTicker({
         lastFpsTimeRef.current = timestamp;
       }
 
-      // 캔버스 크기 동기화
       if (containerRef.current) {
         if (canvas.width !== containerRef.current.clientWidth) {
           canvas.width = containerRef.current.clientWidth;
@@ -173,7 +166,6 @@ export function PipelineStreamTicker({
       const w = canvas.width;
       const underlineY = canvas.height - 1.5;
 
-      // (2) 베이스 언더라인 레일
       ctx.beginPath();
       ctx.moveTo(0, underlineY);
       ctx.lineTo(w, underlineY);
@@ -181,7 +173,6 @@ export function PipelineStreamTicker({
       ctx.lineWidth = 2;
       ctx.stroke();
 
-      // (3) 실선 레이저 스트릭(Streaks) 렌더링
       const streaks = streaksRef.current;
       for (let i = streaks.length - 1; i >= 0; i--) {
         const s = streaks[i];
@@ -219,7 +210,6 @@ export function PipelineStreamTicker({
         ctx.shadowBlur = s.isReverse ? 14 : isDark ? 6 : 3;
         ctx.stroke();
 
-        // Head 스파크
         ctx.beginPath();
         ctx.arc(headX, underlineY, s.isReverse ? 2.5 : 1.5, 0, Math.PI * 2);
         ctx.fillStyle = '#ffffff';
@@ -253,9 +243,9 @@ export function PipelineStreamTicker({
   return (
     <div
       ref={containerRef}
-      className="relative bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 shadow-2xs select-none flex-shrink-0 transition-colors rounded-none overflow-hidden"
+      className="relative bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 shadow-2xs select-none flex-shrink-0 transition-all rounded-none overflow-hidden"
     >
-      {/* ── L1~L5 및 우측 Live Metric HUD (총 6개 블록 분할 그리드) ── */}
+      {/* 6개 분할 그리드 블록 */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 divide-x divide-gray-200 dark:divide-zinc-700">
         
         {/* ── Block 1: L1 UAM Simulator ── */}
@@ -348,7 +338,7 @@ export function PipelineStreamTicker({
           </span>
         </div>
 
-        {/* ── Block 6: Live Metric HUD (End-to-End Latency & Streamed Counter) ── */}
+        {/* ── Block 6: Live Metric HUD ── */}
         <div className="px-3 py-2 flex items-center justify-between bg-slate-50/80 dark:bg-zinc-850/60 font-mono text-xs">
           {approvedBadge ? (
             <div className="w-full flex items-center justify-center gap-1.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/80 py-0.5 px-2 border border-emerald-500/30 animate-pulse">
@@ -357,7 +347,6 @@ export function PipelineStreamTicker({
             </div>
           ) : (
             <>
-              {/* E2E 레이턴시 */}
               <div className="flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
                 <span className="text-[9px] uppercase text-slate-400 dark:text-zinc-500">E2E</span>
@@ -366,7 +355,6 @@ export function PipelineStreamTicker({
 
               <div className="h-3.5 w-px bg-gray-200 dark:divide-zinc-700" />
 
-              {/* 실제 실시간 수신 텔레메트리 스트림 누적 카운터 */}
               <div className="flex flex-col items-end">
                 <span className="text-[8px] uppercase text-slate-400 dark:text-zinc-500">Streamed</span>
                 <span className="text-xs font-bold text-main-primary dark:text-sky-400">
@@ -378,7 +366,7 @@ export function PipelineStreamTicker({
         </div>
       </div>
 
-      {/* ── 블록 하단 언더라인을 지나는 패킷 레이저 캔버스 ── */}
+      {/* 블록 하단 언더라인 패킷 레이저 캔버스 */}
       <canvas
         ref={canvasRef}
         className="absolute inset-0 w-full h-full pointer-events-none z-20"

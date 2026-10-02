@@ -26,6 +26,7 @@ function App() {
   const [activeTab, setActiveTab] = useState<Tab>('list');
   const [pendingApproval, setPendingApproval] = useState<UamVehicleStatus | null>(null);
   const [lastApprovedId, setLastApprovedId] = useState<string | null>(null);
+  const [isStreamTickerOpen, setIsStreamTickerOpen] = useState(true);
 
   const handleApproveClick = (uam: UamVehicleStatus) => {
     setPendingApproval({ ...uam });
@@ -44,13 +45,15 @@ function App() {
 
   return (
     <div className="bg-slate-50 dark:bg-zinc-800 h-screen text-slate-800 dark:text-zinc-100 flex flex-col font-sans overflow-hidden">
-      {/* ── 상단 헤더 & 탭 네비게이션 ── */}
+      {/* ── 상단 헤더 & 탭 네비게이션 (우측 HUD 토글 스위치 포함) ── */}
       <Header
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         displayedCount={displayedUams.length}
         landedCount={landedUams.length}
         mapCount={mapUams.length}
+        isStreamTickerOpen={isStreamTickerOpen}
+        onToggleStreamTicker={() => setIsStreamTickerOpen((prev) => !prev)}
       />
 
       {/* ── 탭 콘텐츠 영역 ── */}
@@ -58,12 +61,14 @@ function App() {
         {/* ── 탭 1: 착륙 우선순위 기체 목록 + 맵 + 타임라인 (3단 패널) ── */}
         {activeTab === 'list' && (
           <>
-            {/* 상단 미니 Live Pipeline Stream Bar (Ticker HUD) */}
-            <PipelineStreamTicker
-              mapUams={mapUams}
-              displayedUams={displayedUams}
-              lastApprovedId={lastApprovedId}
-            />
+            {/* 상단 Live Pipeline Stream Bar (헤더 우측 버튼으로 토글됨) */}
+            {isStreamTickerOpen && (
+              <PipelineStreamTicker
+                mapUams={mapUams}
+                displayedUams={displayedUams}
+                lastApprovedId={lastApprovedId}
+              />
+            )}
 
             <div className="flex flex-1 overflow-hidden gap-6" style={{ minWidth: 0 }}>
               {/* 좌측 패널: 착륙 우선순위 기체 목록 (Priority Zone + Standby Queue) */}

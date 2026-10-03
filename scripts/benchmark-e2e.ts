@@ -13,38 +13,41 @@ interface BenchmarkConfig {
   topic: string;
   fleetSize: number;
   intervalMs: number;
+  batchSize: number; // 1회 틱당 동시 발행 패킷 수
 }
 
 const config: BenchmarkConfig = isStressMode
   ? {
-      mode: 'STRESS',
-      sampleCount: 10000,
-      mqttUrl: 'mqtt://localhost:1883',
-      wsUrl: 'http://localhost:3002',
-      topic: 'uam/status/jamsil',
-      fleetSize: 1000, // 1000대 고밀도 기체 시뮬레이션
-      intervalMs: 10,  // 10ms 단위 고속 주입 (10,000 TPS)
-    }
+    mode: 'STRESS',
+    sampleCount: 10000,
+    mqttUrl: 'mqtt://localhost:1883',
+    wsUrl: 'http://localhost:3002',
+    topic: 'uam/status/jamsil',
+    fleetSize: 1000, // 1000대 고밀도 기체 시뮬레이션
+    intervalMs: 10,
+    batchSize: 50,
+  }
   : {
-      mode: 'STEADY',
-      sampleCount: 200,
-      mqttUrl: 'mqtt://localhost:1883',
-      wsUrl: 'http://localhost:3002',
-      topic: 'uam/status/jamsil',
-      fleetSize: 20,   // 정상 순항 기체 20대
-      intervalMs: 1000,// 1초(1Hz) 정상 리듬
-    };
+    mode: 'STEADY',
+    sampleCount: 200,
+    mqttUrl: 'mqtt://localhost:1883',
+    wsUrl: 'http://localhost:3002',
+    topic: 'uam/status/jamsil',
+    fleetSize: 20,   // 정상 순항 기체 20대
+    intervalMs: 1000,// 1초(1Hz) 정상 리듬
+    batchSize: 20,   // 정상 상태에서는 전체 함대 크기만큼 발행
+  };
 
 async function runBenchmark() {
   console.log('====================================================');
   console.log(`  [BENCHMARK] UAM Pipeline Test (Mode: ${config.mode})`);
   console.log('====================================================');
-  console.log(`[Config] Target: ${config.sampleCount} Samples | Fleet: ${config.fleetSize} UAMs | Interval: ${config.intervalMs}ms`);
+  console.log(`[Config] Target: ${config.sampleCount} Samples | Fleet: ${config.fleetSize} UAMs | Interval: ${config.intervalMs}ms | Batch: ${config.batchSize}`);
 
   // 1. WebSocket 클라이언트 (도착 지점 L4)
   const wsClient: Socket = io(config.wsUrl, { transports: ['websocket'] });
   const latencies: number[] = [];
-  
+
   // 고유 packetId 기반 1:1 수신 매핑 (전송 시각 저장)
   const sentPackets = new Map<string, number>();
   let receivedCount = 0;
@@ -92,7 +95,6 @@ async function runBenchmark() {
   const startTime = Date.now();
 
   let sentCount = 0;
-  const batchSize = config.mode === 'STRESS' ? 10 : config.fleetSize;
 
   const interval = setInterval(() => {
     if (config.mode === 'STRESS' && sentCount >= config.sampleCount) {
@@ -105,7 +107,7 @@ async function runBenchmark() {
     }
 
     const now = Date.now();
-    for (let i = 0; i < batchSize; i++) {
+    for (let i = 0; i < config.batchSize; i++) {
       if (config.mode === 'STRESS' && sentCount >= config.sampleCount) break;
 
       const seq = sentCount + 1;
@@ -188,7 +190,7 @@ async function runBenchmark() {
     'Total Received (WS)': `${receivedCount.toLocaleString()} pkts`,
     'Lost Packets': `${lossCount} pkts`,
     'Drop Rate': `${dropRate.toFixed(2)} %`,
-    'Integrity Status': lossCount === 0 ? '✅ ZERO LOSS (100% Delivered)' : '⚠️ LOSS DETECTED',
+    'Integrity Status': lossCount === 0 ? 'ZERO LOSS (100% Delivered)' : '⚠️ LOSS DETECTED',
     'Effective Throughput': `${throughputTps} TPS`,
     'Elapsed Time': `${durationSec.toFixed(2)} s`,
   });

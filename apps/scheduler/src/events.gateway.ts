@@ -194,6 +194,6 @@ export class EventsGateway implements OnModuleInit, OnGatewayConnection {
     this.server.emit('uam:update', []);
     this.server.emit('map:update', []);
 
-    console.log('[Gateway] ✅ Scheduled reset completed.');
+    console.log('[Gateway] Scheduled reset completed.');
   }
 }

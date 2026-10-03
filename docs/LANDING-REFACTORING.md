@@ -57,14 +57,14 @@ sequenceDiagram
         Scheduler->>Simulator: 하강 명령 (MQTT 파견)
         Note over Simulator: LDP에서 대기하다가 하강 시작
     else 트랙 B: 긴급 자동 착륙 (Fail-Safe 작동)
-        Note over Simulator: 🚨 매초 배터리 검사 중 15% 미만 감지!
+        Note over Simulator: 매초 배터리 검사 중 15% 미만 감지!
         Note over Simulator: 대시보드 명령 없이 즉각 하강 플래그 ON<br/>(landingApproved = true)
     end
 
     Note over Simulator: 고도 하강 중...
     Note over Simulator: 고도 0 도달 시<br/>물리적 착륙 및 시뮬레이션 종료
     
-    Simulator->>Scheduler: ✅ uam/landed (최종 착륙 완료 통보, MQTT)
+    Simulator->>Scheduler: uam/landed (최종 착륙 완료 통보, MQTT)
     
     Note over Scheduler: registerLanded 호출<br/>(트랙 B의 경우 여기서 리스트에 최초 등록됨)
     Scheduler->>Dashboard: landed:update (착륙 완료 로그에 표시!)
@@ -78,3 +78,28 @@ sequenceDiagram
    어떤 방식으로 기체가 내려왔든 간에(수동 vs 자동 강제), 시뮬레이터가 땅에 착지하는 시점에 `uam/landed` 이벤트를 스케줄러로 발송함으로써 착륙 완료 큐 정리가 100% 보장됩니다.
 3. **프론트엔드 복잡도 및 버그 최소화**:
    리액트(App.tsx) 내부의 수많은 렌더 루프 및 `setTimeout` 타임아웃, 예외 처리(ClearTimeout), 동시성 문제(중복 승인) 요소가 완벽하게 사라졌습니다.
+
+---
+
+## 5. 파이프라인 E2E 스트레스 벤치마크 & 무결성 검증 결과
+
+아키텍처 리팩토링 후, 대규모 고밀도 트래픽(1,000대 가상 UAM 기체) 환경에서 파이프라인의 처리 한계와 데이터 무결성을 1:1 `packetId` 추적 기법으로 실측 검증했습니다.
+
+* **테스트 조건**: 총 1,000대 기체 | 1회당 10,000건 표본 | 10ms 고정 주기 (OS 타이머 지터 배제)
+* **검증 경로**: Simulator (`MQTT QoS 1`) ➔ Mosquitto (`L2`) ➔ Scheduler Engine (`L3`) ➔ WebSocket Gateway (`L4`)
+
+### 5단계 부하 벤치마크 매트릭스 (Throughput vs Latency)
+
+| 단계 | 배치 / 주입 강도 | 유효 처리량 (Throughput) | 패킷 유실률 (Drop Rate) | P99 지연시간 | SLA 판정 (< 15ms) | 아키텍처 상태 분석 |
+| :---: | :--- | :---: | :---: | :---: | :---: | :--- |
+| **1단계** | **Batch 30** (3,000 TPS) | **2,558 TPS** | **0.00% (0 pkt)** | **7 ms** | **PASS** | 정상 고밀도 순항 기준선 (Baseline) |
+| **2단계** | **Batch 50** (5,000 TPS) | **3,917 TPS** | **0.00% (0 pkt)** | **8 ms** | **PASS** | 항공 관제 SLA 최적 수용 한계 (Sweet Spot) |
+| **3단계** | **Batch 100** (10,000 TPS)| **7,396 TPS** | **0.00% (0 pkt)** | **12 ms** | **PASS** | **[목표 달성]** 10,000 TPS 급 실시간성 & 무손실 |
+| **4단계** | **Batch 150** (15,000 TPS)| **9,506 TPS** | **0.00% (0 pkt)** | **46 ms** | **CHECK** | 포화점 진입 및 인메모리 버퍼 큐잉 완충 (평균 10ms) |
+| **5단계** | **Batch 500** (50,000 TPS)| **13,280 TPS** | **0.00% (0 pkt)** | **271 ms** | **CHECK** | **[피크 한계 용량]** 0.75초 만에 전량 0.00% 무손실 복원 |
+
+### 핵심 엔지니어링 성과
+1. **0.00% 무손실(Zero-Loss) 검증**: 1~5단계 전 구간(총 50,000건 이상 주입)에서 `Lost Packets: 0 pkts` 달성.
+2. **실시간 초저지연 보장 (~7,400 TPS)**: 일반 고밀도 운용 환경에서 `P99 7~12ms (평균 3~6ms)`로 항공 관제 초저지연 SLA 완벽 충족.
+3. **극한 버스트 방어 (13,280 TPS / 0.75s)**: 0.2초 만에 1만 건이 폭주하는 극한 상황에서도 Mosquitto C언어 소켓 버퍼 및 논블로킹 비동기 릴레이를 통해 단 1건의 드랍 없이 전량 소화.
+

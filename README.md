@@ -22,7 +22,7 @@
 
 ## 3. Architecture (시스템 구조)
 
-![img.png](img.png)
+![architecture](architecture.png)
 **5-Layer Architecture**
 
 1. **L1 (UAM Simulator):** 다수의 가상 기체가 MQTT를 통해 실시간 상태(배터리, 좌표, 비상 상태)를 송신합니다.

@@ -7,9 +7,8 @@
     "dev": "turbo run dev",
     "build": "turbo run build",
     "lint": "turbo run lint",
-    "benchmark:e2e": "npx tsx scripts/benchmark-e2e.ts",
-    "benchmark:stress": "npx tsx scripts/benchmark-e2e.ts --mode=stress",
-    "benchmark:steady": "npx tsx scripts/benchmark-e2e.ts --mode=steady"
+    "benchmark:steady": "npx tsx scripts/benchmark-e2e.ts --mode=steady",
+    "benchmark:stress": "npx tsx scripts/benchmark-e2e.ts --mode=stress"
   },
   "keywords": [],
   "author": "",

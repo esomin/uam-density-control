@@ -57,28 +57,13 @@ async function runBenchmark() {
   });
 
   // 수신 리스너 (도착 시각 계산)
-  wsClient.on('map:update', (uams: any[]) => {
+  wsClient.on('uam:benchmark:direct', (uam: any) => {
     const arriveTime = Date.now();
-    for (const uam of uams) {
-      if (uam.uamId && sentTimestamps.has(uam.uamId)) {
-        const sentTime = sentTimestamps.get(uam.uamId)!;
-        const delta = arriveTime - sentTime;
-        if (delta >= 0) {
-          latencies.push(delta);
-        }
-      }
-    }
-  });
-
-  wsClient.on('uam:update', (uams: any[]) => {
-    const arriveTime = Date.now();
-    for (const uam of uams) {
-      if (uam.uamId && sentTimestamps.has(uam.uamId)) {
-        const sentTime = sentTimestamps.get(uam.uamId)!;
-        const delta = arriveTime - sentTime;
-        if (delta >= 0) {
-          latencies.push(delta);
-        }
+    if (uam && uam.uamId && sentTimestamps.has(uam.uamId)) {
+      const sentTime = sentTimestamps.get(uam.uamId)!;
+      const delta = arriveTime - sentTime;
+      if (delta >= 0) {
+        latencies.push(delta);
       }
     }
   });

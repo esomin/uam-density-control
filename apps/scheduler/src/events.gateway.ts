@@ -109,6 +109,14 @@ export class EventsGateway implements OnModuleInit, OnGatewayConnection {
     return this.landedUamIds.has(uamId);
   }
 
+  /**
+   * [Benchmark 전용] 완충 타이머(1초/500ms)를 바이패스하여
+   * 순수 파이프라인 E2E 지연시간 측정을 위해 즉시 방출
+   */
+  emitDirectBenchmark(data: UamVehicleStatus): void {
+    this.server.emit('uam:benchmark:direct', data);
+  }
+
   /** 시뮬레이터에서 자동/수동 착륙되었을 때 호출되어 착륙을 확정짓는 공통 로직 */
   async registerLanded(uamId: string) {
     if (this.landedUamIds.has(uamId)) {

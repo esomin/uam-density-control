@@ -61,6 +61,9 @@ export class AppController {
 
     // [Stream A] 와일드카드 핸들러가 건너뛰어지므로 여기서 직접 지도 버퍼 갱신
     this.eventsGateway.updateMapBuffer(data);
+
+    // [Benchmark] 순수 파이프라인 지연시간 측정을 위해 전용 채널로 즉시 방출
+    this.eventsGateway.emitDirectBenchmark(data);
   }
 
   /**

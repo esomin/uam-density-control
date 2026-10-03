@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "turbo run dev",
+    "dev": "concurrently -n \"SCH,SIM,DSH\" -c \"bgGreen,bgBlue,bgMagenta\" \"pnpm --filter @uam/scheduler dev\" \"pnpm --filter @uam/simulator dev\" \"pnpm --filter @uam/dashboard dev\"",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "benchmark:steady": "npx tsx scripts/benchmark-e2e.ts --mode=steady",

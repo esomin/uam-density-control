@@ -44,7 +44,10 @@ async function runBenchmark() {
   // 1. WebSocket 클라이언트 (도착 지점 L4)
   const wsClient: Socket = io(config.wsUrl, { transports: ['websocket'] });
   const latencies: number[] = [];
-  const sentTimestamps = new Map<string, number>();
+  
+  // 고유 packetId 기반 1:1 수신 매핑 (전송 시각 저장)
+  const sentPackets = new Map<string, number>();
+  let receivedCount = 0;
 
   await new Promise<void>((resolve, reject) => {
     wsClient.on('connect', () => {
@@ -56,15 +59,19 @@ async function runBenchmark() {
     });
   });
 
-  // 수신 리스너 (도착 시각 계산)
+  // 수신 리스너 (packetId 기반 1:1 수신 검증 및 레이턴시 산출)
   wsClient.on('uam:benchmark:direct', (uam: any) => {
     const arriveTime = Date.now();
-    if (uam && uam.uamId && sentTimestamps.has(uam.uamId)) {
-      const sentTime = sentTimestamps.get(uam.uamId)!;
+    const packetKey = uam?.packetId || (uam?.timestamp ? `${uam.uamId}_${uam.timestamp}` : uam?.uamId);
+
+    if (packetKey && sentPackets.has(packetKey)) {
+      const sentTime = sentPackets.get(packetKey)!;
       const delta = arriveTime - sentTime;
       if (delta >= 0) {
         latencies.push(delta);
       }
+      receivedCount++;
+      sentPackets.delete(packetKey); // 1:1 수신 완료 처리
     }
   });
 
@@ -92,21 +99,30 @@ async function runBenchmark() {
       clearInterval(interval);
       return;
     }
-    if (config.mode === 'STEADY' && latencies.length >= config.sampleCount) {
+    if (config.mode === 'STEADY' && receivedCount >= config.sampleCount) {
       clearInterval(interval);
       return;
     }
 
     const now = Date.now();
     for (let i = 0; i < batchSize; i++) {
+      if (config.mode === 'STRESS' && sentCount >= config.sampleCount) break;
+
+      const seq = sentCount + 1;
       const uamId = `${config.mode === 'STRESS' ? 'STRESS' : 'STEADY'}-${(sentCount % config.fleetSize).toString().padStart(3, '0')}`;
-      sentTimestamps.set(uamId, now);
+      const packetId = `${uamId}#pkt${seq}_${now}`;
+
+      sentPackets.set(packetId, now);
 
       const payload = {
+        packetId,
         uamId,
         latitude: 37.513 + (Math.random() - 0.5) * 0.05,
         longitude: 127.108 + (Math.random() - 0.5) * 0.05,
         altitude: 500,
+        heading: 90,
+        targetLat: 37.513,
+        targetLng: 127.108,
         batteryPercent: 85 - ((i % 20) * 1.5),
         timestamp: now,
         destinationKey: 'jamsil',
@@ -121,27 +137,61 @@ async function runBenchmark() {
     }
 
     if (config.mode === 'STRESS' && sentCount % 1000 === 0) {
-      process.stdout.write(`... Sent: ${sentCount} / ${config.sampleCount} packets\r`);
+      process.stdout.write(`... Sent: ${sentCount} / ${config.sampleCount} | Received: ${receivedCount}\r`);
     } else if (config.mode === 'STEADY') {
-      process.stdout.write(`... Collected: ${latencies.length} / ${config.sampleCount} samples\r`);
+      process.stdout.write(`... Collected: ${receivedCount} / ${config.sampleCount} samples\r`);
     }
   }, config.intervalMs);
 
-  // 3. 전송 완료 대기 후 결과 수집 및 통계 산출
+  // 3. 전송 완료 후 전량 수신 대기 (Grace Period)
   await new Promise<void>((resolve) => {
+    let lastReceived = -1;
+    let idleCounter = 0;
+
     const checkInterval = setInterval(() => {
-      const isFinished = config.mode === 'STRESS' ? (sentCount >= config.sampleCount) : (latencies.length >= config.sampleCount);
-      if (isFinished) {
-        clearInterval(checkInterval);
-        setTimeout(resolve, config.mode === 'STRESS' ? 2000 : 1000);
+      const isSentAll = sentCount >= config.sampleCount;
+      const isReceivedAll = receivedCount >= sentCount;
+
+      if (isSentAll) {
+        if (isReceivedAll) {
+          clearInterval(checkInterval);
+          setTimeout(resolve, 300);
+          return;
+        }
+
+        // 전송 완료 후 추가 수신이 없으면 타임아웃 종료 (유실 측정)
+        if (receivedCount === lastReceived) {
+          idleCounter++;
+          if (idleCounter >= 20) { // 약 3초 대기 (150ms * 20)
+            clearInterval(checkInterval);
+            resolve();
+            return;
+          }
+        } else {
+          lastReceived = receivedCount;
+          idleCounter = 0;
+        }
       }
     }, 150);
   });
 
   const durationSec = (Date.now() - startTime) / 1000;
-  console.log(`\n\n[DONE] Injection Completed in ${durationSec.toFixed(2)}s`);
-  console.log(`- Total Sent: ${sentCount}`);
-  console.log(`- Total Collected Latencies: ${latencies.length}`);
+  const lossCount = Math.max(0, sentCount - receivedCount);
+  const dropRate = sentCount > 0 ? (lossCount / sentCount) * 100 : 0;
+  const throughputTps = (receivedCount / durationSec).toFixed(0);
+
+  console.log(`\n\n====================================================`);
+  console.log(`  [DATA INTEGRITY & LOSS VERIFICATION]`);
+  console.log('====================================================');
+  console.table({
+    'Total Sent (MQTT)': `${sentCount.toLocaleString()} pkts`,
+    'Total Received (WS)': `${receivedCount.toLocaleString()} pkts`,
+    'Lost Packets': `${lossCount} pkts`,
+    'Drop Rate': `${dropRate.toFixed(2)} %`,
+    'Integrity Status': lossCount === 0 ? '✅ ZERO LOSS (100% Delivered)' : '⚠️ LOSS DETECTED',
+    'Effective Throughput': `${throughputTps} TPS`,
+    'Elapsed Time': `${durationSec.toFixed(2)} s`,
+  });
 
   if (latencies.length > 0) {
     latencies.sort((a, b) => a - b);
@@ -154,7 +204,7 @@ async function runBenchmark() {
     const p99 = latencies[Math.floor(latencies.length * 0.99)];
 
     console.log('\n====================================================');
-    console.log('  [SUMMARY] BENCHMARK RESULT (P99 VERIFICATION)');
+    console.log('  [LATENCY SUMMARY] (P99 VERIFICATION)');
     console.log('====================================================');
     console.table({
       'Sample Size': latencies.length,
@@ -165,13 +215,13 @@ async function runBenchmark() {
       'P95': `${p95} ms`,
       'P99 (Worst 1%)': `${p99} ms`,
       'Max Latency': `${max} ms`,
-      'Criteria (< 15ms)': p99 <= 15 ? 'PASS' : 'CHECK',
+      'P99 SLA (< 15ms)': p99 <= 15 ? 'PASS' : 'CHECK',
     });
   }
 
   mqttClient.end();
   wsClient.disconnect();
-  process.exit(0);
+  process.exit(lossCount === 0 ? 0 : 1);
 }
 
 runBenchmark().catch((err) => {

@@ -24,7 +24,8 @@ export interface UamVehicleStatus {
   targetLat: number;
   targetLng: number;
   destinationKey: string;
-  // 스케줄러를 위한 추가 데이터 (FD 가중치용)
+  // 스케줄러 및 E2E 무결성 검증을 위한 추가 데이터 (FD 가중치용 & 패킷 식별용)
+  packetId?: string;
   distanceToTargetKm: number;
   speedKmh: number;
   etaSeconds: number;

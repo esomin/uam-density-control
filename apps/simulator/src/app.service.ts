@@ -28,6 +28,10 @@ export class AppService implements OnModuleInit {
     { name: '수서', key: 'suseo', lat: 37.488, lng: 127.123 },
   ];
 
+  // 시퀀스 카운터 (중복 없는 단조 증가 ID 및 패킷 추적)
+  private vehicleSeq = 0;
+  private packetSeq = 0;
+
   onModuleInit() {
     for (let i = 0; i < this.INITIAL_FLEET_SIZE; i++) {
       this.startSimulation();
@@ -46,7 +50,8 @@ export class AppService implements OnModuleInit {
   }
 
   startSimulation() {
-    const uamId = `UAM-${Date.now().toString().slice(-4)}-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`;
+    this.vehicleSeq = (this.vehicleSeq % 9999) + 1;
+    const uamId = `UAM-${this.vehicleSeq.toString().padStart(4, '0')}`;
     const start = this.VERTIPORTS[Math.floor(Math.random() * this.VERTIPORTS.length)];
     let end = this.VERTIPORTS[Math.floor(Math.random() * this.VERTIPORTS.length)];
     while (start === end) {
@@ -132,13 +137,17 @@ export class AppService implements OnModuleInit {
     const etaSeconds = speedKmh > 0 ? (distanceKm / speedKmh) * 3600 : 0;
     const heading = (Math.atan2(moveLng, moveLat) * (180 / Math.PI) + 360) % 360;
 
+    const now = Date.now();
+    const packetId = `${uamId}#pkt${++this.packetSeq}_${now}`;
+
     const status: UamVehicleStatus = {
+      packetId,
       uamId,
       latitude: state.lat,
       longitude: state.lng,
       altitude: Math.round(state.alt),
       batteryPercent: Math.round(state.battery * 10) / 10,
-      timestamp: Date.now(),
+      timestamp: now,
       heading: (moveLat === 0 && moveLng === 0) ? 0 : heading,
       targetLat: state.targetLat,
       targetLng: state.targetLng,

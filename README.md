@@ -141,6 +141,7 @@ pnpm dev --filter gateway
 | --- | --- | --- | --- |
 | **MQTT Broker** | Mosquitto | `1883` (TCP), `9001` (WebSocket) | L2 기체 데이터 수집 메시지 브로커 |
 | **In-Memory DB** | Redis | `6379` | L3 우선순위 큐 (ZSET 완충 댐) |
+| **Time-Series DB** | TimescaleDB | `5433` (Host) / `5432` (Container) | L5 텔레메트리 로그 및 통계 영속화 |
 | **Dashboard** | React (Vite) | `5173`  [http://localhost:5173](http://localhost:5173) | L4 웹 관제 및 시각화 대시보드 |
 
 

@@ -75,9 +75,27 @@ services:
     networks:
       - uam-net
 
+  # L5: Persistence & History Logs (TimescaleDB)
+  timescaledb:
+    image: timescale/timescaledb:latest-pg16
+    container_name: uam-timescaledb
+    restart: always
+    environment:
+      POSTGRES_USER: uam_admin
+      POSTGRES_PASSWORD: uam_password
+      POSTGRES_DB: uam_telemetry
+    ports:
+      - "5432:5432"
+    volumes:
+      - timescaledb-data:/var/lib/postgresql/data
+    networks:
+      - uam-net
+
 volumes:
   redis-data:
+  timescaledb-data:
 
 networks:
   uam-net:
     driver: bridge
+

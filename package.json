@@ -8,7 +8,8 @@
     "build": "turbo run build",
     "lint": "turbo run lint",
     "benchmark:steady": "npx tsx scripts/benchmark-e2e.ts --mode=steady",
-    "benchmark:stress": "npx tsx scripts/benchmark-e2e.ts --mode=stress"
+    "benchmark:stress": "npx tsx scripts/benchmark-e2e.ts --mode=stress",
+    "benchmark:io-isolation": "npx tsx scripts/benchmark-io-isolation.ts"
   },
   "keywords": [],
   "author": "",
@@ -16,7 +17,9 @@
   "packageManager": "pnpm@10.30.1",
   "devDependencies": {
     "@types/node": "^26.6.4",
+    "@uam/types": "workspace:*",
     "concurrently": "^9.2.1",
+    "ioredis": "^5.9.3",
     "mqtt": "^5.15.0",
     "socket.io-client": "^4.8.3",
     "tsx": "^4.23.15",

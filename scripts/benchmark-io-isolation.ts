@@ -151,12 +151,14 @@ async function runRedisIsolationBenchmark(records: TestRecord[], redis: Redis): 
   // Stream B: Disk Flush 용 배치 윈도우 버퍼
   const batchBuffer: any[] = [];
 
-  const BATCH_FLUSH_INTERVAL = 200; // 200개마다 또는 1초 단위 배치 압축 영속화
+  // [보수적 설정]
+  // 배치 크기를 15개로 대폭 축소하고, 배터리 임계치 도달 및 특정 상태 변경 이벤트에 대해 추가적인 감사(Audit) 로그 I/O 수행
+  const BATCH_FLUSH_INTERVAL = 15; // 15개 단위로 잘게 디스크 I/O 발생 (보수적 세분화)
   const startTime = Date.now();
 
   const fd = fs.openSync(isolatedFilePath, 'a');
 
-  // 배치 단위 파이프라인 처리 (초당 수천~10,000건 폭주 환경)
+  // 배치 단위 파이프라인 처리 (10,000건 스트림)
   const CHUNK_SIZE = 50;
   for (let i = 0; i < records.length; i += CHUNK_SIZE) {
     const chunk = records.slice(i, i + CHUNK_SIZE);
@@ -175,12 +177,20 @@ async function runRedisIsolationBenchmark(records: TestRecord[], redis: Redis): 
 
       // 3. 배치 윈도우 버퍼링
       batchBuffer.push(record);
+
+      // [보수적 조건]: 배터리 저전압 / 비상 이벤트 발생 시 즉시 별도 디스크 I/O 기록 (약 1% 추가 디스크 I/O)
+      if (record.data.batteryPercent < 20) {
+        const auditLog = JSON.stringify({ event: 'EMERGENCY_BATTERY', uamId: record.uamId, time: record.timestamp }) + '\n';
+        fs.writeSync(fd, auditLog);
+        fs.fdatasyncSync(fd);
+        diskIoCount++;
+      }
     }
 
     // Redis 메모리 계층 처리 완료
     await pipeline.exec();
 
-    // 4. 완충된 주기적 배치 I/O (디스크 I/O 격리)
+    // 4. 완충된 주기적 배치 I/O (보수적 15개 주기)
     if (batchBuffer.length >= BATCH_FLUSH_INTERVAL) {
       const flushData = batchBuffer.splice(0, batchBuffer.length);
       const batchPayload = flushData.map(r => JSON.stringify(r)).join('\n') + '\n';
@@ -231,7 +241,7 @@ async function main() {
   console.log('================================================================================');
   console.log('  [BENCHMARK] Redis In-Memory Backpressure & I/O Isolation Verification');
   console.log('================================================================================');
-  console.log('Target Stream Size : 10,000 High-Frequency Telemetry Packets');
+  console.log('Target Stream Size : 10,000 High-Frequency Telemetry Packets (Conservative Mode)');
   console.log('Evaluation Goal    : >= 92% Disk I/O Overhead Reduction (Stream A/B Isolation)');
 
   const redis = new Redis({

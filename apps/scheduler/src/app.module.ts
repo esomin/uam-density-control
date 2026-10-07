@@ -3,6 +3,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { EventsGateway } from './events.gateway';
+import { PersistenceService } from './persistence.service';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { EventsGateway } from './events.gateway';
     ]),
   ],
   controllers: [AppController],
-  providers: [AppService, EventsGateway],
+  providers: [AppService, EventsGateway, PersistenceService],
 })
 export class AppModule { }
+

@@ -3,6 +3,7 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 import { type UamVehicleStatus } from '@uam/types';
 import { AppService } from './app.service';
 import { EventsGateway } from './events.gateway';
+import { PersistenceService } from './persistence.service';
 
 // 서울 주요 거점 간 최대 거리를 약 20km로 가정 (거리 정규화용)
 const MAX_DISTANCE_KM = 20;
@@ -12,6 +13,7 @@ export class AppController {
   constructor(
     private readonly appService: AppService,
     private readonly eventsGateway: EventsGateway,
+    private readonly persistenceService: PersistenceService,
   ) { }
 
   /**
@@ -59,6 +61,9 @@ export class AppController {
     // [Stream B] Redis ZSET에 저장 (착륙 큐 우선순위 계산용)
     await this.appService.updatePriorityQueue(data.uamId, priorityScore, data);
 
+    // [L5: Persistence] 비동기 마이크로배치 영속화 (논블로킹)
+    this.persistenceService.pushTelemetry(data, priorityScore);
+
     // [Stream A] 와일드카드 핸들러가 건너뛰어지므로 여기서 직접 지도 버퍼 갱신
     this.eventsGateway.updateMapBuffer(data);
 
@@ -80,7 +85,14 @@ export class AppController {
    * [Simulator → Scheduler] 자동착륙 등에 의해 착륙 완료(고도0) 통보 수신
    */
   @MessagePattern('uam/landed')
-  async handleUamLanded(@Payload() data: { uamId: string }) {
+  async handleUamLanded(@Payload() data: { uamId: string; destinationKey?: string; batteryPercent?: number }) {
     await this.eventsGateway.registerLanded(data.uamId);
+    // [L5: Persistence] 착륙 완료 감사 로그 저장
+    await this.persistenceService.saveLandingEvent({
+      landedAt: new Date(),
+      uamId: data.uamId,
+      destinationKey: data.destinationKey,
+      finalBatteryPercent: data.batteryPercent,
+    });
   }
 }

@@ -36,9 +36,15 @@ services:
       - MQTT_URL=mqtt://mosquitto:1883
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - DB_HOST=timescaledb
+      - DB_PORT=5432
+      - DB_USER=uam_admin
+      - DB_PASSWORD=uam_password
+      - DB_NAME=uam_telemetry
     depends_on:
       - mosquitto
       - redis
+      - timescaledb
     networks:
       - uam-net
 
@@ -88,6 +94,7 @@ services:
       - "5432:5432"
     volumes:
       - timescaledb-data:/var/lib/postgresql/data
+      - ./init-timescaledb.sql:/docker-entrypoint-initdb.d/init-timescaledb.sql
     networks:
       - uam-net
 

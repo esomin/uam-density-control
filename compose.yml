@@ -91,7 +91,7 @@ services:
       POSTGRES_PASSWORD: uam_password
       POSTGRES_DB: uam_telemetry
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - timescaledb-data:/var/lib/postgresql/data
       - ./init-timescaledb.sql:/docker-entrypoint-initdb.d/init-timescaledb.sql
